@@ -70,7 +70,7 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Available Balance</Text>
-          <Text style={styles.balanceAmount}>₹25,480</Text>
+          <Text style={styles.balanceAmount}>₹25,00,480</Text>
           <Text style={styles.carbonCredits}>Carbon Credits: 247</Text>
         </View>
 

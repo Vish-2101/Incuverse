@@ -315,44 +315,23 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Environmental Education</Text>
 
-          <View style={styles.educationCard}>
+          <TouchableOpacity
+            style={styles.educationCard}
+            onPress={() => navigation.navigate('EnvironmentalEducation')}
+            activeOpacity={0.8}
+          >
             <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.educationGradient}>
               <MaterialIcons name="lightbulb" size={32} color="#00C896" />
               <Text style={styles.educationTitle}>Did You Know?</Text>
               <Text style={styles.educationText}>
-                Your carbon credits this month have offset the equivalent of driving 125 km in a gasoline car!
+                Tap to explore how your carbon credits are making a real environmental impact!
               </Text>
-              <TouchableOpacity style={styles.learnMoreButton}>
+              <View style={styles.learnMoreButton}>
                 <Text style={styles.learnMoreText}>Learn More</Text>
-              </TouchableOpacity>
+                <MaterialIcons name="arrow-forward" size={16} color="white" />
+              </View>
             </LinearGradient>
-          </View>
-
-          <View style={styles.tipsContainer}>
-            <View style={styles.tipCard}>
-              <MaterialIcons name="eco" size={24} color="#4CAF50" />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Carbon Footprint</Text>
-                <Text style={styles.tipText}>Every transaction through eco-friendly merchants reduces your carbon footprint by supporting sustainable practices.</Text>
-              </View>
-            </View>
-
-            <View style={styles.tipCard}>
-              <MaterialIcons name="forest" size={24} color="#8BC34A" />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Tree Planting Impact</Text>
-                <Text style={styles.tipText}>Your credits fund real environmental projects. Every 20 credits plants one tree through our verified partners.</Text>
-              </View>
-            </View>
-
-            <View style={styles.tipCard}>
-              <MaterialIcons name="recycling" size={24} color="#FF9800" />
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>Circular Economy</Text>
-                <Text style={styles.tipText}>Supporting businesses with sustainable practices helps create a circular economy that benefits everyone.</Text>
-              </View>
-            </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -660,6 +639,11 @@ const styles = StyleSheet.create({
   educationCard: {
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   educationGradient: {
     padding: 24,
@@ -679,6 +663,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   learnMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     backgroundColor: '#00C896',
     paddingHorizontal: 20,
     paddingVertical: 8,
@@ -689,38 +676,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: 'white',
-  },
-  tipsContainer: {
-    marginTop: 16,
-    gap: 12,
-  },
-  tipCard: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#F5F5F5',
-  },
-  tipContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  tipTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  tipText: {
-    fontSize: 12,
-    color: '#666666',
-    lineHeight: 16,
   },
   bottomSpacing: {
     height: 100,

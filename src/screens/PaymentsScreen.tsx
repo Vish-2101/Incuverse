@@ -141,7 +141,11 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
         <View style={[styles.section, { marginBottom: 40 }]}>
           <Text style={styles.sectionTitle}>Quick Pay Options</Text>
 
-          <TouchableOpacity style={styles.quickPayCard}>
+          <TouchableOpacity
+            style={styles.quickPayCard}
+            onPress={() => navigation.navigate('Scan')}
+            activeOpacity={0.7}
+          >
             <LinearGradient colors={['#FF6B6B', '#FF8E8E']} style={styles.quickPayGradient}>
               <MaterialIcons name="qr-code-scanner" size={32} color="white" />
               <View style={styles.quickPayText}>
