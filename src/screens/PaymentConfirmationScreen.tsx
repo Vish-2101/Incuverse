@@ -28,6 +28,7 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   const [pin, setPin] = useState(['', '', '', '']);
   const [showPinEntry, setShowPinEntry] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const pinRefs = [
     useRef<TextInput>(null),
@@ -37,6 +38,8 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   ];
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const checkAnim = useRef(new Animated.Value(0)).current;
 
   const savedAccounts = [
     { id: 1, type: 'Bank Account', name: 'HDFC Bank', number: '****1234', icon: 'account-balance' },
@@ -97,18 +100,63 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
-      Alert.alert(
-        'Payment Successful!',
-        `₹${amount} paid to ${provider.name}\nCarbon Credits Earned: +${Math.floor(parseFloat(amount) / 100)}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('DashboardTabs'),
-          },
-        ]
-      );
+      setShowSuccess(true);
+
+      // Animate success screen
+      Animated.sequence([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 4,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.timing(checkAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Navigate back after showing success
+      setTimeout(() => {
+        navigation.navigate('DashboardTabs');
+      }, 3000);
     }, 2000);
   };
+
+  if (showSuccess) {
+    return (
+      <View style={styles.successContainer}>
+        <Animated.View
+          style={[
+            styles.successCircle,
+            {
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <Animated.View
+            style={{
+              opacity: checkAnim,
+            }}
+          >
+            <MaterialIcons name="check" size={80} color="white" />
+          </Animated.View>
+        </Animated.View>
+
+        <Text style={styles.successTitle}>Payment Successful!</Text>
+        <Text style={styles.successAmount}>₹{amount}</Text>
+        <Text style={styles.successProvider}>Paid to {provider.name}</Text>
+
+        <View style={styles.successCreditsCard}>
+          <MaterialIcons name="eco" size={32} color="#00C896" />
+          <Text style={styles.successCreditsText}>
+            +{Math.floor(parseFloat(amount) / 100)} Carbon Credits Earned
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   if (showPinEntry) {
     return (
@@ -594,6 +642,63 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 8,
+  },
+  // Success Screen Styles
+  successContainer: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  successCircle: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: '#00C896',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
+    shadowColor: '#00C896',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  successTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 16,
+  },
+  successAmount: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#00C896',
+    marginBottom: 8,
+  },
+  successProvider: {
+    fontSize: 18,
+    color: '#666666',
+    marginBottom: 32,
+  },
+  successCreditsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  successCreditsText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#00C896',
+    marginLeft: 12,
   },
 });
 
