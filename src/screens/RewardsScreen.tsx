@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,39 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { getCarbonCredits } from '../utils/storage';
 import TicketCutout from '../components/TicketCutout';
 import TicketModal from '../components/TicketModal';
 
 const { width } = Dimensions.get('window');
 
 const RewardsScreen: React.FC = () => {
-  const [currentCredits] = useState(1500);
+  const [currentCredits, setCurrentCredits] = useState(0);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Load data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadCredits();
+    }, [])
+  );
+
+  useEffect(() => {
+    loadCredits();
+  }, []);
+
+  const loadCredits = async () => {
+    try {
+      console.log('Loading carbon credits...');
+      const credits = await getCarbonCredits();
+      console.log('Credits:', credits);
+      setCurrentCredits(credits);
+    } catch (error) {
+      console.error('Error loading carbon credits:', error);
+    }
+  };
 
   const giftCards = [
     {
