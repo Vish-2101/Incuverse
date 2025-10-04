@@ -9,11 +9,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getUsersApiUrl } from '../config/api';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
-const RegistrationScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+
+const RegistrationScreen: React.FC<{ navigation: any, route: any }> = ({ navigation, route }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
+  // Safely access route.params to prevent TypeError if it's undefined
+  const { phoneNumber } = route.params || {};
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     dateOfBirth: '',
@@ -25,55 +37,89 @@ const RegistrationScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     idNumber: '',
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handleSubmit = () => {
-    const requiredFields = ['fullName', 'bankName', 'accountNumber', 'ifscCode'];
-    const missingFields = requiredFields.filter(field => !formData[field].trim());
-
-    if (missingFields.length > 0) {
-      Alert.alert('Error', 'Please fill in all required fields');
+  const handleSubmit = async () => {
+    // Add a check to ensure phoneNumber exists before submitting
+    if (!phoneNumber) {
+      Alert.alert('Error', 'An error occurred. Please go back and verify your phone number again.');
       return;
     }
 
-    Alert.alert(
-      'Registration Successful!',
-      'Your account has been created successfully.',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('DashboardTabs')
-        }
-      ]
-    );
+    const requiredFields: (keyof typeof formData)[] = ['fullName', 'bankName', 'accountNumber', 'ifscCode'];
+    const missingFields = requiredFields.filter(field => !formData[field].trim());
+
+    if (missingFields.length > 0) {
+      Alert.alert('Error', 'Please fill in all required fields marked with *');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${getUsersApiUrl()}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          phoneNumber: phoneNumber, // Add the verified phone number
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          'Registration Successful!',
+          'Your account has been created successfully.',
+          [{
+            text: 'OK',
+            // Updated navigation to target "DashboardScreen" as requested
+            onPress: () => navigation.navigate('Dashboard')
+          }]
+        );
+      } else {
+        throw new Error(data.message || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Submit Registration Error:', error);
+      Alert.alert('Error', error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <LinearGradient
         colors={['#00C896', '#00A876']}
         style={styles.header}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Complete Registration</Text>
+        <View style={styles.headerTop}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <MaterialIcons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Complete Registration</Text>
+          <ThemeToggle size={24} style={styles.themeToggle} />
+        </View>
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Personal Information</Text>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Full Name *</Text>
@@ -109,7 +155,7 @@ const RegistrationScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bank Details (Dummy)</Text>
+          <Text style={styles.sectionTitle}>Bank Details</Text>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Bank Name *</Text>
@@ -168,12 +214,16 @@ const RegistrationScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
           <LinearGradient
-            colors={['#00C896', '#00A876']}
+            colors={isLoading ? ['#B0B0B0', '#909090'] : ['#00C896', '#00A876']}
             style={styles.buttonGradient}
           >
-            <Text style={styles.submitButtonText}>Complete Registration</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={styles.submitButtonText}>Complete Registration</Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 
@@ -192,16 +242,24 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 20,
+  },
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    flex: 1,
+    textAlign: 'center',
+  },
+  themeToggle: {
+    padding: 8,
   },
   content: {
     flex: 1,

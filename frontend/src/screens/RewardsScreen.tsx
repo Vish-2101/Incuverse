@@ -14,10 +14,16 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getCarbonCredits } from '../utils/storage';
 import TicketCutout from '../components/TicketCutout';
 import TicketModal from '../components/TicketModal';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
 const { width } = Dimensions.get('window');
 
 const RewardsScreen: React.FC = () => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
   const [currentCredits, setCurrentCredits] = useState(0);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -154,9 +160,12 @@ const RewardsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
-        <Text style={styles.headerTitle}>Rewards</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.headerTitle}>Rewards</Text>
+          <ThemeToggle size={24} style={styles.themeToggle} />
+        </View>
         <Text style={styles.headerSubtitle}>Redeem your carbon credits</Text>
 
         <View style={styles.creditsCard}>
@@ -168,8 +177,8 @@ const RewardsScreen: React.FC = () => {
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Scratch & Reveal</Text>
-          <Text style={styles.sectionSubtitle}>Cut the ticket to reveal a surprise</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Scratch & Reveal</Text>
+          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Cut the ticket to reveal a surprise</Text>
           <View style={styles.ticketContainer}>
             <TicketCutout
               title="Weekly Eco Bonus"
@@ -180,7 +189,7 @@ const RewardsScreen: React.FC = () => {
           </View>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Gift Cards</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Gift Cards</Text>
           <View style={styles.cardsContainer}>
             {giftCards.map((giftCard) => (
               <TouchableOpacity
@@ -189,19 +198,19 @@ const RewardsScreen: React.FC = () => {
                 onPress={() => openRewardModal(giftCard, 'giftcard')}
                 activeOpacity={0.9}
               >
-                <View style={styles.giftCardContent}>
+                <View style={[styles.giftCardContent, { backgroundColor: themeColors.card }]}>
                   <View style={styles.giftCardHeader}>
                     <Text style={styles.giftCardEmoji}>{giftCard.image}</Text>
                     <View style={styles.giftCardInfo}>
-                      <Text style={styles.giftCardBrand}>{giftCard.brand}</Text>
-                      <Text style={styles.giftCardValue}>{giftCard.value}</Text>
+                      <Text style={[styles.giftCardBrand, { color: themeColors.text }]}>{giftCard.brand}</Text>
+                      <Text style={[styles.giftCardValue, { color: themeColors.text }]}>{giftCard.value}</Text>
                     </View>
                   </View>
-                  <Text style={styles.giftCardDescription}>{giftCard.description}</Text>
+                  <Text style={[styles.giftCardDescription, { color: themeColors.textSecondary }]}>{giftCard.description}</Text>
                   <View style={styles.giftCardFooter}>
                     <View style={styles.creditsRequired}>
-                      <MaterialIcons name={"eco" as any} size={16} color="#00C896" />
-                      <Text style={styles.creditsRequiredText}>{giftCard.credits}</Text>
+                      <MaterialIcons name={"eco" as any} size={16} color={themeColors.primary} />
+                      <Text style={[styles.creditsRequiredText, { color: themeColors.primary }]}>{giftCard.credits}</Text>
                     </View>
                     <View
                       style={[
@@ -229,8 +238,8 @@ const RewardsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Environmental Impact</Text>
-          <Text style={styles.sectionSubtitle}>Make a direct environmental impact</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Environmental Impact</Text>
+          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Make a direct environmental impact</Text>
           <View style={styles.cardsContainer}>
             {ecoRewards.map((reward) => (
               <TouchableOpacity
@@ -261,23 +270,23 @@ const RewardsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>How to Earn More Credits</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>How to Earn More Credits</Text>
           <View style={styles.tipsContainer}>
-            <View style={styles.tipItem}>
-              <MaterialIcons name="payment" size={20} color="#00C896" />
-              <Text style={styles.tipText}>Make payments through the app</Text>
+            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="payment" size={20} color={themeColors.primary} />
+              <Text style={[styles.tipText, { color: themeColors.text }]}>Make payments through the app</Text>
             </View>
-            <View style={styles.tipItem}>
-              <MaterialIcons name="qr-code-scanner" size={20} color="#00C896" />
-              <Text style={styles.tipText}>Scan QR codes at partner stores</Text>
+            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="qr-code-scanner" size={20} color={themeColors.primary} />
+              <Text style={[styles.tipText, { color: themeColors.text }]}>Scan QR codes at partner stores</Text>
             </View>
-            <View style={styles.tipItem}>
-              <MaterialIcons name="group" size={20} color="#00C896" />
-              <Text style={styles.tipText}>Refer friends to earn bonus credits</Text>
+            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="group" size={20} color={themeColors.primary} />
+              <Text style={[styles.tipText, { color: themeColors.text }]}>Refer friends to earn bonus credits</Text>
             </View>
-            <View style={styles.tipItem}>
-              <MaterialIcons name="eco" size={20} color="#00C896" />
-              <Text style={styles.tipText}>Choose eco-friendly merchants</Text>
+            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="eco" size={20} color={themeColors.primary} />
+              <Text style={[styles.tipText, { color: themeColors.text }]}>Choose eco-friendly merchants</Text>
             </View>
           </View>
         </View>
@@ -352,10 +361,20 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: 20,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
+    flex: 1,
+  },
+  themeToggle: {
+    padding: 8,
   },
   headerSubtitle: {
     fontSize: 16,

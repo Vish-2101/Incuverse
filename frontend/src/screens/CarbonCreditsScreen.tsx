@@ -11,10 +11,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCarbonCredits, getTransactions, Transaction } from '../utils/storage';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
 const { width } = Dimensions.get('window');
 
 const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [totalCredits, setTotalCredits] = useState(0);
   const [recentActivities, setRecentActivities] = useState<Transaction[]>([]);
@@ -127,9 +133,12 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
-        <Text style={styles.headerTitle}>Carbon Credits</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.headerTitle}>Carbon Credits</Text>
+          <ThemeToggle size={24} style={styles.themeToggle} />
+        </View>
         <Text style={styles.headerSubtitle}>Track your environmental impact</Text>
 
         <View style={styles.statsContainer}>
@@ -154,15 +163,15 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Impact Goals</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Impact Goals</Text>
           {impactGoals.map((goal) => (
-            <View key={goal.id} style={styles.goalCard}>
+            <View key={goal.id} style={[styles.goalCard, { backgroundColor: themeColors.card }]}>
               <View style={styles.goalHeader}>
                 <View style={styles.goalInfo}>
                   <MaterialIcons name={goal.icon as any} size={20} color={goal.color} />
-                  <Text style={styles.goalTitle}>{goal.title}</Text>
+                  <Text style={[styles.goalTitle, { color: themeColors.text }]}>{goal.title}</Text>
                 </View>
-                <Text style={styles.goalProgress}>
+                <Text style={[styles.goalProgress, { color: themeColors.textSecondary }]}>
                   {goal.current} / {goal.target} {goal.unit}
                 </Text>
               </View>
@@ -183,18 +192,19 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Achievement Badges</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Achievement Badges</Text>
             <TouchableOpacity onPress={() => parentNavigation?.navigate('BadgeDetails')}>
-              <Text style={styles.seeAllText}>Know More</Text>
+              <Text style={[styles.seeAllText, { color: themeColors.primary }]}>Know More</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.sectionSubtitle}>Complete challenges to unlock badges and earn bonus credits</Text>
+          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Complete challenges to unlock badges and earn bonus credits</Text>
           <View style={styles.badgesGrid}>
             {achievementBadges.slice(0, 3).map((badge) => (
               <TouchableOpacity
                 key={badge.id}
                 style={[
                   styles.badgeCard,
+                  { backgroundColor: themeColors.card },
                   !badge.earned && styles.badgeCardLocked,
                 ]}
                 onPress={() => parentNavigation?.navigate('BadgeDetails', { selectedBadge: badge })}
@@ -203,12 +213,12 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
                 <View style={styles.badgeHeader}>
                   <View style={[
                     styles.badgeIconContainer,
-                    { backgroundColor: badge.earned ? '#E8F8F5' : '#F5F5F5' }
+                    { backgroundColor: badge.earned ? themeColors.primaryLight : themeColors.divider }
                   ]}>
                     <MaterialIcons
                       name={badge.icon as any}
                       size={32}
-                      color={badge.earned ? '#00C896' : '#999999'}
+                      color={badge.earned ? themeColors.primary : themeColors.textTertiary}
                     />
                   </View>
                   {badge.earned && (
@@ -221,6 +231,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
                   <Text
                     style={[
                       styles.badgeTitle,
+                      { color: badge.earned ? themeColors.text : themeColors.textTertiary },
                       !badge.earned && styles.badgeTitleLocked,
                     ]}
                   >
@@ -229,6 +240,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
                   <Text
                     style={[
                       styles.badgeDescription,
+                      { color: badge.earned ? themeColors.textSecondary : themeColors.textTertiary },
                       !badge.earned && styles.badgeDescriptionLocked,
                     ]}
                     numberOfLines={2}
@@ -261,9 +273,9 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Activities</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Recent Activities</Text>
             <TouchableOpacity onPress={() => parentNavigation?.navigate('ActivityDetails')}>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={[styles.seeAllText, { color: themeColors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
 
@@ -271,7 +283,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
             recentActivities.map((activity) => (
               <TouchableOpacity
                 key={activity.id}
-                style={styles.activityCard}
+                style={[styles.activityCard, { backgroundColor: themeColors.card }]}
                 onPress={() => parentNavigation?.navigate('ActivityDetails', {
                   selectedActivity: {
                     ...activity,
@@ -280,48 +292,48 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
                 })}
                 activeOpacity={0.7}
               >
-                <View style={styles.activityIcon}>
-                  <MaterialIcons name={activity.icon as any} size={20} color="#00C896" />
+                <View style={[styles.activityIcon, { backgroundColor: themeColors.primaryLight }]}>
+                  <MaterialIcons name={activity.icon as any} size={20} color={themeColors.primary} />
                 </View>
                 <View style={styles.activityDetails}>
-                  <Text style={styles.activityMerchant}>{activity.merchant}</Text>
-                  <Text style={styles.activityDate}>{activity.date}</Text>
+                  <Text style={[styles.activityMerchant, { color: themeColors.text }]}>{activity.merchant}</Text>
+                  <Text style={[styles.activityDate, { color: themeColors.textSecondary }]}>{activity.date}</Text>
                   {activity.amount && (
-                    <Text style={styles.activityAmount}>₹{activity.amount}</Text>
+                    <Text style={[styles.activityAmount, { color: themeColors.text }]}>₹{activity.amount}</Text>
                   )}
                 </View>
                 <View style={styles.activityImpact}>
                   <View style={styles.creditsEarned}>
-                    <MaterialIcons name="eco" size={16} color="#00C896" />
-                    <Text style={styles.creditsText}>+{activity.credits}</Text>
+                    <MaterialIcons name="eco" size={16} color={themeColors.primary} />
+                    <Text style={[styles.creditsText, { color: themeColors.primary }]}>+{activity.credits}</Text>
                   </View>
-                  <Text style={styles.offsetText}>
+                  <Text style={[styles.offsetText, { color: themeColors.textSecondary }]}>
                     {activity.carbonImpact?.co2Offset || `${(activity.credits * 0.02).toFixed(2)} kg CO₂`}
                   </Text>
                 </View>
               </TouchableOpacity>
             ))
           ) : (
-            <View style={styles.emptyState}>
-              <MaterialIcons name="eco" size={48} color="#CCCCCC" />
-              <Text style={styles.emptyStateText}>No activities yet</Text>
-              <Text style={styles.emptyStateSubtext}>Start making eco-friendly payments to earn credits!</Text>
+            <View style={[styles.emptyState, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="eco" size={48} color={themeColors.textTertiary} />
+              <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>No activities yet</Text>
+              <Text style={[styles.emptyStateSubtext, { color: themeColors.textTertiary }]}>Start making eco-friendly payments to earn credits!</Text>
             </View>
           )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Environmental Education</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Environmental Education</Text>
 
           <TouchableOpacity
             style={styles.educationCard}
             onPress={() => parentNavigation?.navigate('EnvironmentalEducation')}
             activeOpacity={0.8}
           >
-            <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.educationGradient}>
-              <MaterialIcons name="lightbulb" size={32} color="#00C896" />
-              <Text style={styles.educationTitle}>Did You Know?</Text>
-              <Text style={styles.educationText}>
+            <LinearGradient colors={isDark ? ['#1A3A2E', '#0F2A1F'] : ['#E8F8F5', '#D1F2EB']} style={styles.educationGradient}>
+              <MaterialIcons name="lightbulb" size={32} color={themeColors.primary} />
+              <Text style={[styles.educationTitle, { color: themeColors.text }]}>Did You Know?</Text>
+              <Text style={[styles.educationText, { color: themeColors.textSecondary }]}>
                 Tap to explore how your carbon credits are making a real environmental impact!
               </Text>
               <View style={styles.learnMoreButton}>
@@ -348,10 +360,20 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: 20,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
+    flex: 1,
+  },
+  themeToggle: {
+    padding: 8,
   },
   headerSubtitle: {
     fontSize: 16,

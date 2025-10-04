@@ -12,10 +12,17 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getBalance, getCarbonCredits, getTransactions, initializeStorage } from '../utils/storage';
 import type { Transaction } from '../utils/storage';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors, createThemedStyles } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
 const { width } = Dimensions.get('window');
 
 const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  const themedStyles = createThemedStyles(theme);
+  
   const [balance, setBalance] = useState(0);
   const [carbonCredits, setCarbonCredits] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
@@ -82,19 +89,21 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            
             <Text style={styles.userName}>Welcome to EcoCred</Text>
           </View>
-          <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() => parentNavigation?.navigate('Profile')}
-          >
-            <MaterialIcons name="account-circle" size={32} color="white" />
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <ThemeToggle size={24} style={styles.themeToggle} />
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => parentNavigation?.navigate('Profile')}
+            >
+              <MaterialIcons name="account-circle" size={32} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.postInfoCardsSpacing} />
@@ -110,18 +119,18 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action) => (
               <TouchableOpacity
                 key={action.id}
-                style={styles.quickActionCard}
+                style={[styles.quickActionCard, { backgroundColor: themeColors.card }]}
                 onPress={action.action}
               >
                 <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
                   <MaterialIcons name={action.icon as any} size={24} color="white" />
                 </View>
-                <Text style={styles.quickActionTitle}>{action.title}</Text>
+                <Text style={[styles.quickActionTitle, { color: themeColors.text }]}>{action.title}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -129,9 +138,9 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Recent Transactions</Text>
             <TouchableOpacity onPress={() => parentNavigation?.navigate('TransactionHistory')}>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={[styles.seeAllText, { color: themeColors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
 
@@ -139,98 +148,98 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
             recentTransactions.map((transaction) => (
               <TouchableOpacity
                 key={transaction.id}
-                style={styles.transactionCard}
+                style={[styles.transactionCard, { backgroundColor: themeColors.card }]}
                 onPress={() => parentNavigation?.navigate('TransactionHistory')}
                 activeOpacity={0.7}
               >
-                <View style={styles.transactionIcon}>
-                  <MaterialIcons name="store" size={24} color="#00C896" />
+                <View style={[styles.transactionIcon, { backgroundColor: themeColors.primaryLight }]}>
+                  <MaterialIcons name="store" size={24} color={themeColors.primary} />
                 </View>
                 <View style={styles.transactionDetails}>
-                  <Text style={styles.merchantName}>{transaction.merchant || 'Unknown'}</Text>
-                  <Text style={styles.transactionDate}>{transaction.fullDate || transaction.date}</Text>
+                  <Text style={[styles.merchantName, { color: themeColors.text }]}>{transaction.merchant || 'Unknown'}</Text>
+                  <Text style={[styles.transactionDate, { color: themeColors.textSecondary }]}>{transaction.fullDate || transaction.date}</Text>
                 </View>
                 <View style={styles.transactionAmount}>
-                  <Text style={styles.amountText}>₹{transaction.amount?.toLocaleString('en-IN') || 0}</Text>
-                  <Text style={styles.carbonText}>+{transaction.credits || 0} credits</Text>
+                  <Text style={[styles.amountText, { color: themeColors.text }]}>₹{transaction.amount?.toLocaleString('en-IN') || 0}</Text>
+                  <Text style={[styles.carbonText, { color: themeColors.primary }]}>+{transaction.credits || 0} credits</Text>
                 </View>
               </TouchableOpacity>
             ))
           ) : (
-            <View style={styles.emptyTransactions}>
-              <MaterialIcons name="receipt-long" size={48} color="#CCCCCC" />
-              <Text style={styles.emptyText}>No transactions yet</Text>
-              <Text style={styles.emptySubtext}>Make a payment to see your transactions here</Text>
+            <View style={[styles.emptyTransactions, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="receipt-long" size={48} color={themeColors.textTertiary} />
+              <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>No transactions yet</Text>
+              <Text style={[styles.emptySubtext, { color: themeColors.textTertiary }]}>Make a payment to see your transactions here</Text>
             </View>
           )}
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.walletInsightsTitle]}>Wallet Insights</Text>
+          <Text style={[styles.sectionTitle, styles.walletInsightsTitle, { color: themeColors.text }]}>Wallet Insights</Text>
           <View style={styles.insightsGrid}>
-            <View style={styles.insightCard}>
-              <MaterialIcons name="trending-up" size={20} color="#00C896" />
-              <Text style={styles.insightValue}>+12%</Text>
-              <Text style={styles.insightLabel}>Monthly Spending</Text>
+            <View style={[styles.insightCard, { backgroundColor: themeColors.card }]}>
+              <MaterialIcons name="trending-up" size={20} color={themeColors.primary} />
+              <Text style={[styles.insightValue, { color: themeColors.text }]}>+12%</Text>
+              <Text style={[styles.insightLabel, { color: themeColors.textSecondary }]}>Monthly Spending</Text>
             </View>
-            <View style={styles.insightCard}>
+            <View style={[styles.insightCard, { backgroundColor: themeColors.card }]}>
               <MaterialIcons name="savings" size={20} color="#4ECDC4" />
-              <Text style={styles.insightValue}>₹2,340</Text>
-              <Text style={styles.insightLabel}>Saved This Month</Text>
+              <Text style={[styles.insightValue, { color: themeColors.text }]}>₹2,340</Text>
+              <Text style={[styles.insightLabel, { color: themeColors.textSecondary }]}>Saved This Month</Text>
             </View>
-            <View style={styles.insightCard}>
+            <View style={[styles.insightCard, { backgroundColor: themeColors.card }]}>
               <MaterialIcons name="credit-card" size={20} color="#45B7D1" />
-              <Text style={styles.insightValue}>156</Text>
-              <Text style={styles.insightLabel}>Total Transactions</Text>
+              <Text style={[styles.insightValue, { color: themeColors.text }]}>156</Text>
+              <Text style={[styles.insightLabel, { color: themeColors.textSecondary }]}>Total Transactions</Text>
             </View>
           </View>
 
-          <View style={styles.spendingChart}>
+          <View style={[styles.spendingChart, { backgroundColor: themeColors.card }]}>
             <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>Spending by Category</Text>
-              <Text style={styles.chartSubtitle}>Last 30 days</Text>
+              <Text style={[styles.chartTitle, { color: themeColors.text }]}>Spending by Category</Text>
+              <Text style={[styles.chartSubtitle, { color: themeColors.textSecondary }]}>Last 30 days</Text>
             </View>
             <View style={styles.categorySpending}>
               <View style={styles.categoryItem}>
                 <View style={styles.categoryInfo}>
                   <View style={[styles.categoryDot, { backgroundColor: '#FF6B6B' }]} />
-                  <Text style={styles.categoryName}>Food & Dining</Text>
+                  <Text style={[styles.categoryName, { color: themeColors.text }]}>Food & Dining</Text>
                 </View>
-                <Text style={styles.categoryAmount}>₹8,950</Text>
+                <Text style={[styles.categoryAmount, { color: themeColors.text }]}>₹8,950</Text>
               </View>
               <View style={styles.categoryItem}>
                 <View style={styles.categoryInfo}>
                   <View style={[styles.categoryDot, { backgroundColor: '#4ECDC4' }]} />
-                  <Text style={styles.categoryName}>Shopping</Text>
+                  <Text style={[styles.categoryName, { color: themeColors.text }]}>Shopping</Text>
                 </View>
-                <Text style={styles.categoryAmount}>₹6,240</Text>
+                <Text style={[styles.categoryAmount, { color: themeColors.text }]}>₹6,240</Text>
               </View>
               <View style={styles.categoryItem}>
                 <View style={styles.categoryInfo}>
                   <View style={[styles.categoryDot, { backgroundColor: '#96CEB4' }]} />
-                  <Text style={styles.categoryName}>Transport</Text>
+                  <Text style={[styles.categoryName, { color: themeColors.text }]}>Transport</Text>
                 </View>
-                <Text style={styles.categoryAmount}>₹3,120</Text>
+                <Text style={[styles.categoryAmount, { color: themeColors.text }]}>₹3,120</Text>
               </View>
               <View style={styles.categoryItem}>
                 <View style={styles.categoryInfo}>
                   <View style={[styles.categoryDot, { backgroundColor: '#FECA57' }]} />
-                  <Text style={styles.categoryName}>Entertainment</Text>
+                  <Text style={[styles.categoryName, { color: themeColors.text }]}>Entertainment</Text>
                 </View>
-                <Text style={styles.categoryAmount}>₹2,890</Text>
+                <Text style={[styles.categoryAmount, { color: themeColors.text }]}>₹2,890</Text>
               </View>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Environmental Impact</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Environmental Impact</Text>
           <View style={styles.impactCard}>
-            <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.impactCardGradient}>
-              <MaterialIcons name="eco" size={40} color="#00C896" />
-              <Text style={styles.impactTitle}>This Month</Text>
-              <Text style={styles.impactValue}>2.4 kg CO₂ Offset</Text>
-              <Text style={styles.impactSubtext}>You're making a difference!</Text>
+            <LinearGradient colors={isDark ? ['#1A3A2E', '#0F2A1F'] : ['#E8F8F5', '#D1F2EB']} style={styles.impactCardGradient}>
+              <MaterialIcons name="eco" size={40} color={themeColors.primary} />
+              <Text style={[styles.impactTitle, { color: themeColors.text }]}>This Month</Text>
+              <Text style={[styles.impactValue, { color: themeColors.primary }]}>2.4 kg CO₂ Offset</Text>
+              <Text style={[styles.impactSubtext, { color: themeColors.textSecondary }]}>You're making a difference!</Text>
             </LinearGradient>
           </View>
         </View>
@@ -256,6 +265,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 30,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  themeToggle: {
+    marginRight: 12,
   },
   greeting: {
     fontSize: 16,

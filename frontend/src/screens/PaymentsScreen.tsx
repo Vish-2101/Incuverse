@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
 const { width } = Dimensions.get('window');
 
@@ -19,6 +22,9 @@ interface PaymentsScreenProps {
 }
 
 const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavigation }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
   const [searchQuery, setSearchQuery] = useState('');
 
   const navToUse = parentNavigation || navigation;
@@ -48,18 +54,22 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
-        <Text style={styles.headerTitle}>Payments</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.headerTitle}>Payments</Text>
+          <ThemeToggle size={24} style={styles.themeToggle} />
+        </View>
         <Text style={styles.headerSubtitle}>Pay and earn carbon credits</Text>
       </LinearGradient>
 
       <View style={styles.content}>
-        <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={20} color="#666666" />
+        <View style={[styles.searchContainer, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}>
+          <MaterialIcons name="search" size={20} color={themeColors.textSecondary} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: themeColors.text }]}
             placeholder="Search brands or categories"
+            placeholderTextColor={themeColors.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -67,27 +77,27 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Payment Categories</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0, color: themeColors.text }]}>Payment Categories</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>View All</Text>
+              <Text style={[styles.seeAllText, { color: themeColors.primary }]}>View All</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.sectionSubtitle}>Pay bills and earn carbon credits</Text>
+          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Pay bills and earn carbon credits</Text>
 
           <View style={styles.billsGrid}>
             {paymentCategories.map((category) => (
               <TouchableOpacity
                 key={category.id}
-                style={styles.billCard}
+                style={[styles.billCard, { backgroundColor: themeColors.card }]}
                 onPress={() => navToUse.navigate('BillPayment', { category: category.title })}
               >
                 <View style={[styles.billIcon, { backgroundColor: category.color }]}>
                   <MaterialIcons name={category.icon as any} size={28} color="white" />
                 </View>
-                <Text style={styles.billTitle}>{category.title}</Text>
+                <Text style={[styles.billTitle, { color: themeColors.text }]}>{category.title}</Text>
                 <View style={styles.billCreditsSmall}>
-                  <MaterialIcons name="eco" size={12} color="#00C896" />
-                  <Text style={styles.billCreditsText}>+{category.credits}</Text>
+                  <MaterialIcons name="eco" size={12} color={themeColors.primary} />
+                  <Text style={[styles.billCreditsText, { color: themeColors.primary }]}>+{category.credits}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -96,33 +106,33 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Popular Brands</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0, color: themeColors.text }]}>Popular Brands</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={[styles.seeAllText, { color: themeColors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
 
           {popularBrands.map((brand) => (
-            <TouchableOpacity key={brand.id} style={styles.brandCard}>
+            <TouchableOpacity key={brand.id} style={[styles.brandCard, { backgroundColor: themeColors.card }]}>
               <View style={styles.brandInfo}>
                 <View style={styles.brandLogo}>
                   <Text style={styles.brandEmoji}>{brand.logo}</Text>
                 </View>
                 <View style={styles.brandDetails}>
-                  <Text style={styles.brandName}>{brand.name}</Text>
-                  <Text style={styles.brandCategory}>{brand.category}</Text>
+                  <Text style={[styles.brandName, { color: themeColors.text }]}>{brand.name}</Text>
+                  <Text style={[styles.brandCategory, { color: themeColors.textSecondary }]}>{brand.category}</Text>
                 </View>
               </View>
               <View style={styles.brandCredits}>
-                <MaterialIcons name="eco" size={16} color="#00C896" />
-                <Text style={styles.creditsText}>+{brand.carbonCredits}</Text>
+                <MaterialIcons name="eco" size={16} color={themeColors.primary} />
+                <Text style={[styles.creditsText, { color: themeColors.primary }]}>+{brand.carbonCredits}</Text>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
         <View style={[styles.section, { marginBottom: 40 }]}>
-          <Text style={styles.sectionTitle}>Quick Pay Options</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Quick Pay Options</Text>
 
           <TouchableOpacity
             style={styles.quickPayCard}
@@ -167,10 +177,20 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: 20,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
+    flex: 1,
+  },
+  themeToggle: {
+    padding: 8,
   },
   headerSubtitle: {
     fontSize: 16,

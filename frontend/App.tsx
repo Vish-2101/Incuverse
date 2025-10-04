@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { Provider as PaperProvider } from 'react-native-paper';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
 import LoadingScreen from './src/screens/LoadingScreen';
 import SplashScreenComponent from './src/screens/SplashScreen';
@@ -27,6 +28,36 @@ import { initializeStorage, clearAllData } from './src/utils/storage';
 const Stack = createStackNavigator<RootStackParamList>();
 
 SplashScreen.preventAutoHideAsync();
+
+// Navigation wrapper component that can access theme
+const AppNavigator: React.FC = () => {
+  const { isDark } = useTheme();
+
+  return (
+    <NavigationContainer>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <Stack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName="Onboarding"
+      >
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        <Stack.Screen name="Auth" component={AuthScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Registration" component={RegistrationScreen} />
+        <Stack.Screen name="DashboardTabs" component={DashboardTabs} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="BadgeDetails" component={BadgeDetailsScreen} />
+        <Stack.Screen name="EnvironmentalEducation" component={EnvironmentalEducationScreen} />
+        <Stack.Screen name="BillPayment" component={BillPaymentScreen} />
+        <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen} />
+        <Stack.Screen name="ActivityDetails" component={ActivityDetailsScreen} />
+        <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
+        <Stack.Screen name="TransactionDetails" component={TransactionDetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 
 export default function App() {
   // Initialize storage once when app starts
@@ -61,29 +92,10 @@ export default function App() {
   }
 
   return (
-    <PaperProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <Stack.Navigator
-          screenOptions={{ headerShown: false }}
-          initialRouteName="Onboarding"
-        >
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="Auth" component={AuthScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen name="Registration" component={RegistrationScreen} />
-          <Stack.Screen name="DashboardTabs" component={DashboardTabs} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="BadgeDetails" component={BadgeDetailsScreen} />
-          <Stack.Screen name="EnvironmentalEducation" component={EnvironmentalEducationScreen} />
-          <Stack.Screen name="BillPayment" component={BillPaymentScreen} />
-          <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen} />
-          <Stack.Screen name="ActivityDetails" component={ActivityDetailsScreen} />
-          <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
-          <Stack.Screen name="TransactionDetails" component={TransactionDetailsScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <ThemeProvider>
+      <PaperProvider>
+        <AppNavigator />
+      </PaperProvider>
+    </ThemeProvider>
   );
 }

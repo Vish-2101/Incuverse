@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   BALANCE: '@ecocred_balance',
   CARBON_CREDITS: '@ecocred_carbon_credits',
   TRANSACTIONS: '@ecocred_transactions',
+  THEME: '@ecocred_theme',
 };
 
 export interface Transaction {
@@ -32,6 +33,7 @@ export const initializeStorage = async () => {
     const balance = await AsyncStorage.getItem(STORAGE_KEYS.BALANCE);
     const credits = await AsyncStorage.getItem(STORAGE_KEYS.CARBON_CREDITS);
     const transactions = await AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+    const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
 
     if (balance === null) {
       await AsyncStorage.setItem(STORAGE_KEYS.BALANCE, '100000'); // ₹1,00,000 for testing
@@ -40,6 +42,10 @@ export const initializeStorage = async () => {
     if (credits === null) {
       await AsyncStorage.setItem(STORAGE_KEYS.CARBON_CREDITS, '245');
       console.log('✅ Initial credits set: 245');
+    }
+    if (theme === null) {
+      await AsyncStorage.setItem(STORAGE_KEYS.THEME, 'light');
+      console.log('✅ Initial theme set: light');
     }
     if (transactions === null) {
       // Add some test transactions for testing
@@ -284,6 +290,26 @@ const formatFullDate = (date: Date): string => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
+// Get theme
+export const getTheme = async (): Promise<'light' | 'dark'> => {
+  try {
+    const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
+    return (theme as 'light' | 'dark') || 'light';
+  } catch (error) {
+    console.error('Error getting theme:', error);
+    return 'light';
+  }
+};
+
+// Update theme
+export const updateTheme = async (theme: 'light' | 'dark'): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEYS.THEME, theme);
+  } catch (error) {
+    console.error('Error updating theme:', error);
+  }
+};
+
 // Clear all data (for testing)
 export const clearAllData = async (): Promise<void> => {
   try {
@@ -291,6 +317,7 @@ export const clearAllData = async (): Promise<void> => {
       STORAGE_KEYS.BALANCE,
       STORAGE_KEYS.CARBON_CREDITS,
       STORAGE_KEYS.TRANSACTIONS,
+      STORAGE_KEYS.THEME,
     ]);
     await initializeStorage();
   } catch (error) {

@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +20,9 @@ interface CustomTabBarProps {
 }
 
 const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, navigation }) => {
+  const { theme } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
   const currentRouteName = state?.routes?.[state.index]?.name;
   if (currentRouteName === 'Scan') {
     return null;
@@ -32,7 +37,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, navigat
 
   return (
     <View style={styles.container}>
-      <View style={styles.tabBar}>
+      <View style={[styles.tabBar, { backgroundColor: themeColors.surface, borderTopColor: themeColors.border }]}>
         {tabs.map((tab, index) => {
           const isFocused = state.index === index;
           const isMiddle = index === 2; // Scan button
@@ -66,7 +71,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, navigat
                     color="white"
                   />
                 </LinearGradient>
-                <Text style={styles.scanLabel}>{tab.label}</Text>
+                <Text style={[styles.scanLabel, { color: themeColors.primary }]}>{tab.label}</Text>
               </TouchableOpacity>
             );
           }
@@ -80,12 +85,12 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, descriptors, navigat
               <MaterialIcons
                 name={tab.icon as any}
                 size={24}
-                color={isFocused ? '#00C896' : '#999999'}
+                color={isFocused ? themeColors.primary : themeColors.textTertiary}
               />
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isFocused ? '#00C896' : '#999999' }
+                  { color: isFocused ? themeColors.primary : themeColors.textTertiary }
                 ]}
               >
                 {tab.label}

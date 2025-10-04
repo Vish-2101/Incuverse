@@ -13,6 +13,9 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import type { CameraType, BarcodeScanningResult } from 'expo-camera';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
+import ThemeToggle from '../components/ThemeToggle';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,6 +24,9 @@ interface QRScannerScreenProps {
 }
 
 const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
+  
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
@@ -115,14 +121,14 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
   // Permission loading state
   if (!permission) {
     return (
-      <View style={styles.permissionContainer}>
-        <MaterialIcons name={"camera-alt" as any} size={80} color="#00C896" />
-        <Text style={styles.permissionText}>Requesting Camera Access...</Text>
-        <Text style={styles.permissionSubtext}>
+      <View style={[styles.permissionContainer, { backgroundColor: themeColors.background }]}>
+        <MaterialIcons name={"camera-alt" as any} size={80} color={themeColors.primary} />
+        <Text style={[styles.permissionText, { color: themeColors.text }]}>Requesting Camera Access...</Text>
+        <Text style={[styles.permissionSubtext, { color: themeColors.textSecondary }]}>
           Please allow camera permission to scan QR codes
         </Text>
         <View style={styles.loadingDots}>
-          <Text style={styles.loadingText}>Loading...</Text>
+          <Text style={[styles.loadingText, { color: themeColors.textSecondary }]}>Loading...</Text>
         </View>
       </View>
     );
@@ -131,20 +137,20 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
   // Permission denied state
   if (!permission.granted) {
     return (
-      <View style={styles.permissionContainer}>
+      <View style={[styles.permissionContainer, { backgroundColor: themeColors.background }]}>
         <MaterialIcons name={"camera-off" as any} size={80} color="#FF6B6B" />
-        <Text style={styles.permissionText}>Camera Access Denied</Text>
-        <Text style={styles.permissionSubtext}>
+        <Text style={[styles.permissionText, { color: themeColors.text }]}>Camera Access Denied</Text>
+        <Text style={[styles.permissionSubtext, { color: themeColors.textSecondary }]}>
           Please enable camera permission in your device settings to use QR scanner
         </Text>
         <TouchableOpacity
-          style={styles.retryButton}
+          style={[styles.retryButton, { backgroundColor: themeColors.primary }]}
           onPress={requestPermissionAgain}
         >
           <Text style={styles.retryButtonText}>Try Again</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.settingsButton}
+          style={[styles.settingsButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
           onPress={() => {
             Alert.alert(
               'Settings',
@@ -153,14 +159,14 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
             );
           }}
         >
-          <Text style={styles.settingsButtonText}>Open Settings</Text>
+          <Text style={[styles.settingsButtonText, { color: themeColors.text }]}>Open Settings</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -173,7 +179,7 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
           <Text style={styles.headerTitle}>Scan QR Code</Text>
           <Text style={styles.headerSubtitle}>Point camera at QR code to make payment</Text>
         </View>
-        <View style={styles.headerPlaceholder} />
+        <ThemeToggle size={24} style={styles.themeToggle} />
       </View>
 
       {/* Camera Container */}
@@ -269,7 +275,7 @@ const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
       {scanned && (
         <View style={styles.rescaneButton}>
           <TouchableOpacity
-            style={styles.scanAgainButton}
+            style={[styles.scanAgainButton, { backgroundColor: themeColors.primary }]}
             onPress={() => setScanned(false)}
           >
             <Text style={styles.scanAgainText}>Tap to scan again</Text>
@@ -337,6 +343,9 @@ const styles = StyleSheet.create({
   },
   headerPlaceholder: {
     width: 40,
+  },
+  themeToggle: {
+    padding: 8,
   },
   headerTitle: {
     fontSize: 22,
