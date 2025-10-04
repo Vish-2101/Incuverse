@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { processPayment } from '../utils/storage';
 
 interface PaymentConfirmationScreenProps {
   route: any;
@@ -88,7 +89,7 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
     }).start();
   };
 
-  const handleConfirmPayment = () => {
+  const handleConfirmPayment = async () => {
     const enteredPin = pin.join('');
     if (enteredPin.length !== 4) {
       Alert.alert('Error', 'Please enter a 4-digit PIN');
@@ -98,29 +99,51 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
     setIsProcessing(true);
 
     // Simulate payment processing
-    setTimeout(() => {
+    setTimeout(async () => {
+      // Process the payment
+      console.log('Processing payment:', {
+        amount: parseFloat(amount),
+        provider: provider.name,
+        category,
+      });
+
+      const result = await processPayment(
+        parseFloat(amount),
+        provider.name,
+        category,
+        provider.logo
+      );
+
+      console.log('Payment result:', result);
+
       setIsProcessing(false);
-      setShowSuccess(true);
 
-      // Animate success screen
-      Animated.sequence([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          friction: 4,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-        Animated.timing(checkAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      if (result.success) {
+        setShowSuccess(true);
 
-      // Navigate back after showing success
-      setTimeout(() => {
-        navigation.navigate('DashboardTabs');
-      }, 3000);
+        // Animate success screen
+        Animated.sequence([
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            friction: 4,
+            tension: 40,
+            useNativeDriver: true,
+          }),
+          Animated.timing(checkAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start();
+
+        // Navigate back after showing success
+        setTimeout(() => {
+          navigation.navigate('DashboardTabs');
+        }, 3000);
+      } else {
+        Alert.alert('Payment Failed', result.message);
+        setShowPinEntry(false);
+      }
     }, 2000);
   };
 

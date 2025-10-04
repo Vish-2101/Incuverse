@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,29 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { getTransactions } from '../utils/storage';
+import type { Transaction } from '../utils/storage';
 
 const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
 
-  const allTransactions = [
-    { id: 1, merchant: 'Starbucks', amount: '₹450', date: 'Oct 3', time: '2:30 PM', fullDate: 'Oct 3, 2025', carbon: '+5 credits', type: 'Food & Dining', icon: 'payment', status: 'Completed' },
-    { id: 2, merchant: 'Zomato', amount: '₹680', date: 'Oct 3', time: '7:45 PM', fullDate: 'Oct 3, 2025', carbon: '+8 credits', type: 'Food & Dining', icon: 'restaurant', status: 'Completed' },
-    { id: 3, merchant: 'Amazon', amount: '₹1,200', date: 'Oct 2', time: '3:15 PM', fullDate: 'Oct 2, 2025', carbon: '+12 credits', type: 'Shopping', icon: 'shopping-cart', status: 'Completed' },
-    { id: 4, merchant: 'Uber', amount: '₹320', date: 'Oct 2', time: '11:20 AM', fullDate: 'Oct 2, 2025', carbon: '+6 credits', type: 'Transport', icon: 'directions-car', status: 'Completed' },
-    { id: 5, merchant: 'BigBasket', amount: '₹850', date: 'Oct 1', time: '10:30 AM', fullDate: 'Oct 1, 2025', carbon: '+10 credits', type: 'Groceries', icon: 'shopping-basket', status: 'Completed' },
-    { id: 6, merchant: 'Netflix', amount: '₹199', date: 'Oct 1', time: '6:00 PM', fullDate: 'Oct 1, 2025', carbon: '+3 credits', type: 'Entertainment', icon: 'tv', status: 'Completed' },
-    { id: 7, merchant: 'Swiggy', amount: '₹540', date: 'Sep 30', time: '8:15 PM', fullDate: 'Sep 30, 2025', carbon: '+7 credits', type: 'Food & Dining', icon: 'restaurant', status: 'Completed' },
-    { id: 8, merchant: 'Metro Card Recharge', amount: '₹500', date: 'Sep 30', time: '9:00 AM', fullDate: 'Sep 30, 2025', carbon: '+5 credits', type: 'Transport', icon: 'directions-subway', status: 'Completed' },
-    { id: 9, merchant: 'BookMyShow', amount: '₹600', date: 'Sep 29', time: '7:30 PM', fullDate: 'Sep 29, 2025', carbon: '+4 credits', type: 'Entertainment', icon: 'local-movies', status: 'Completed' },
-    { id: 10, merchant: 'Flipkart', amount: '₹2,350', date: 'Sep 29', time: '2:45 PM', fullDate: 'Sep 29, 2025', carbon: '+20 credits', type: 'Shopping', icon: 'shopping-bag', status: 'Completed' },
-    { id: 11, merchant: 'Cafe Coffee Day', amount: '₹280', date: 'Sep 28', time: '4:00 PM', fullDate: 'Sep 28, 2025', carbon: '+3 credits', type: 'Food & Dining', icon: 'local-cafe', status: 'Completed' },
-    { id: 12, merchant: 'Ola', amount: '₹150', date: 'Sep 28', time: '10:15 AM', fullDate: 'Sep 28, 2025', carbon: '+2 credits', type: 'Transport', icon: 'directions-car', status: 'Completed' },
-  ];
+  useFocusEffect(
+    React.useCallback(() => {
+      loadTransactions();
+    }, [])
+  );
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const loadTransactions = async () => {
+    const transactions = await getTransactions();
+    setAllTransactions(transactions);
+  };
+
 
   const filterOptions = [
     { id: 'all', label: 'All' },
@@ -49,12 +54,12 @@ const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation })
   const filteredTransactions = getFilteredTransactions();
 
   const totalAmount = filteredTransactions.reduce((sum, t) => {
-    const amount = parseFloat(t.amount.replace('₹', '').replace(',', ''));
+    const amount = typeof t.amount === 'number' ? t.amount : parseFloat(String(t.amount).replace('₹', '').replace(',', ''));
     return sum + amount;
   }, 0);
 
   const totalCredits = filteredTransactions.reduce((sum, t) => {
-    const credits = parseInt(t.carbon.replace('+', '').replace(' credits', ''));
+    const credits = typeof t.credits === 'number' ? t.credits : parseInt(String(t.credits).replace('+', '').replace(' credits', ''));
     return sum + credits;
   }, 0);
 
@@ -129,12 +134,12 @@ const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation })
               </View>
               <View style={styles.transactionDetails}>
                 <Text style={styles.merchantName}>{transaction.merchant}</Text>
-                <Text style={styles.transactionType}>{transaction.type}</Text>
-                <Text style={styles.transactionDate}>{transaction.date}, {transaction.time}</Text>
+                <Text style={styles.transactionType}>{transaction.category}</Text>
+                <Text style={styles.transactionDate}>{transaction.fullDate} {transaction.time}</Text>
               </View>
               <View style={styles.transactionAmount}>
-                <Text style={styles.amountText}>{transaction.amount}</Text>
-                <Text style={styles.carbonText}>{transaction.carbon}</Text>
+                <Text style={styles.amountText}>₹{transaction.amount}</Text>
+                <Text style={styles.carbonText}>+{transaction.credits} credits</Text>
                 <View style={styles.statusBadge}>
                   <MaterialIcons name="check-circle" size={12} color="#00C896" />
                 </View>

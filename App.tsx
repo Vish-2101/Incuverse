@@ -22,12 +22,20 @@ import TransactionHistoryScreen from './src/screens/TransactionHistoryScreen';
 import TransactionDetailsScreen from './src/screens/TransactionDetailsScreen';
 import DashboardTabs from './src/navigation/DashboardTabs';
 import type { RootStackParamList } from './src/types/navigation';
+import { initializeStorage, clearAllData } from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  // Initialize storage once when app starts
+  useEffect(() => {
+    // Uncomment the line below to reset balance to ₹1,00,000 and credits to 245
+    // clearAllData();
+
+    initializeStorage();
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
 

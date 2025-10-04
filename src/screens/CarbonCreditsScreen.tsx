@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,126 +9,46 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { getCarbonCredits, getTransactions, Transaction } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
 const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [totalCredits, setTotalCredits] = useState(0);
+  const [recentActivities, setRecentActivities] = useState<Transaction[]>([]);
 
-  const carbonStats = {
-    totalCredits: 247,
-    monthlyOffset: 2.4,
-    yearlyOffset: 28.8,
-    treesEquivalent: 12,
-    rank: 'Eco Warrior',
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    const credits = await getCarbonCredits();
+    const transactions = await getTransactions();
+    setTotalCredits(credits);
+    setRecentActivities(transactions.slice(0, 4)); // Show latest 4
   };
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'payment',
-      merchant: 'Starbucks',
-      amount: '₹450',
-      credits: 5,
-      offset: '0.12 kg CO₂',
-      date: 'Oct 3, 2:30 PM',
-      fullDate: 'Oct 3, 2025',
-      icon: 'payment',
-      category: 'Food & Dining',
-      transactionId: 'TXN123456789',
-      status: 'Completed',
-      paymentMethod: 'UPI',
-      carbonImpact: {
-        co2Offset: '0.12 kg',
-        treesEquivalent: '0.006',
-        creditsEarned: 5,
-        breakdown: [
-          { item: 'Sustainable sourcing', value: '60%' },
-          { item: 'Eco-friendly packaging', value: '25%' },
-          { item: 'Carbon neutral delivery', value: '15%' },
-        ],
-      },
-    },
-    {
-      id: 2,
-      type: 'payment',
-      merchant: 'Zomato',
-      amount: '₹680',
-      credits: 8,
-      offset: '0.18 kg CO₂',
-      date: 'Oct 2, 7:45 PM',
-      fullDate: 'Oct 2, 2025',
-      icon: 'restaurant',
-      category: 'Food & Dining',
-      transactionId: 'TXN987654321',
-      status: 'Completed',
-      paymentMethod: 'Credit Card',
-      carbonImpact: {
-        co2Offset: '0.18 kg',
-        treesEquivalent: '0.009',
-        creditsEarned: 8,
-        breakdown: [
-          { item: 'Local restaurant support', value: '50%' },
-          { item: 'Minimal packaging', value: '30%' },
-          { item: 'Green delivery fleet', value: '20%' },
-        ],
-      },
-    },
-    {
-      id: 3,
-      type: 'bonus',
-      merchant: 'Daily Check-in',
-      amount: '',
-      credits: 2,
-      offset: '0.05 kg CO₂',
-      date: 'Oct 1, 9:00 AM',
-      fullDate: 'Oct 1, 2025',
-      icon: 'event-available',
-      category: 'Bonus',
-      transactionId: 'BONUS123456',
-      status: 'Completed',
-      paymentMethod: '-',
-      carbonImpact: {
-        co2Offset: '0.05 kg',
-        treesEquivalent: '0.0025',
-        creditsEarned: 2,
-        breakdown: [
-          { item: 'Daily engagement bonus', value: '100%' },
-        ],
-      },
-    },
-    {
-      id: 4,
-      type: 'payment',
-      merchant: 'Amazon',
-      amount: '₹1,200',
-      credits: 12,
-      offset: '0.25 kg CO₂',
-      date: 'Sep 30, 3:15 PM',
-      fullDate: 'Sep 30, 2025',
-      icon: 'shopping-cart',
-      category: 'Shopping',
-      transactionId: 'TXN456789123',
-      status: 'Completed',
-      paymentMethod: 'Debit Card',
-      carbonImpact: {
-        co2Offset: '0.25 kg',
-        treesEquivalent: '0.0125',
-        creditsEarned: 12,
-        breakdown: [
-          { item: 'Eco-certified products', value: '55%' },
-          { item: 'Recycled packaging', value: '30%' },
-          { item: 'Carbon offset shipping', value: '15%' },
-        ],
-      },
-    },
-  ];
+  const carbonStats = {
+    totalCredits: totalCredits,
+    monthlyOffset: (totalCredits * 0.02).toFixed(1),
+    yearlyOffset: (totalCredits * 0.24).toFixed(1),
+    treesEquivalent: Math.floor(totalCredits * 0.05),
+    rank: 'Eco Warrior',
+  };
 
   const impactGoals = [
     {
       id: 1,
       title: 'Monthly Target',
-      current: 247,
+      current: totalCredits,
       target: 300,
       unit: 'credits',
       color: '#00C896',
@@ -137,7 +57,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
     {
       id: 2,
       title: 'CO₂ Offset Goal',
-      current: 2.4,
+      current: parseFloat(carbonStats.monthlyOffset),
       target: 5.0,
       unit: 'kg CO₂',
       color: '#4ECDC4',
@@ -146,7 +66,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
     {
       id: 3,
       title: 'Tree Equivalent',
-      current: 12,
+      current: carbonStats.treesEquivalent,
       target: 20,
       unit: 'trees',
       color: '#96CEB4',
@@ -159,10 +79,10 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
       id: 1,
       title: 'First Payment',
       icon: 'star',
-      earned: true,
+      earned: recentActivities.length > 0,
       description: 'Made your first eco-friendly payment',
       requirement: 'Complete 1 transaction',
-      progress: '1/1 completed'
+      progress: `${Math.min(recentActivities.length, 1)}/1 completed`
     },
     {
       id: 2,
@@ -177,28 +97,28 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
       id: 3,
       title: 'Eco Warrior',
       icon: 'eco',
-      earned: true,
+      earned: totalCredits >= 100,
       description: 'Earned 100+ carbon credits',
       requirement: 'Accumulate 100 carbon credits',
-      progress: '247/100 credits earned'
+      progress: `${totalCredits}/100 credits earned`
     },
     {
       id: 4,
       title: 'Green Champion',
       icon: 'emoji-events',
-      earned: false,
+      earned: parseFloat(carbonStats.monthlyOffset) >= 10,
       description: 'Offset 10kg of CO₂ emissions',
       requirement: 'Reach 10kg CO₂ offset milestone',
-      progress: '2.4/10 kg CO₂ offset'
+      progress: `${carbonStats.monthlyOffset}/10 kg CO₂ offset`
     },
     {
       id: 5,
       title: 'Planet Hero',
       icon: 'public',
-      earned: false,
+      earned: carbonStats.treesEquivalent >= 50,
       description: 'Plant equivalent of 50 trees',
       requirement: 'Achieve 50 tree planting equivalent',
-      progress: '12/50 trees planted'
+      progress: `${carbonStats.treesEquivalent}/50 trees planted`
     },
   ];
 
@@ -347,32 +267,47 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
             </TouchableOpacity>
           </View>
 
-          {recentActivities.map((activity) => (
-            <TouchableOpacity
-              key={activity.id}
-              style={styles.activityCard}
-              onPress={() => parentNavigation?.navigate('ActivityDetails', { activity })}
-              activeOpacity={0.7}
-            >
-              <View style={styles.activityIcon}>
-                <MaterialIcons name={activity.icon as any} size={20} color="#00C896" />
-              </View>
-              <View style={styles.activityDetails}>
-                <Text style={styles.activityMerchant}>{activity.merchant}</Text>
-                <Text style={styles.activityDate}>{activity.date}</Text>
-                {activity.amount && (
-                  <Text style={styles.activityAmount}>{activity.amount}</Text>
-                )}
-              </View>
-              <View style={styles.activityImpact}>
-                <View style={styles.creditsEarned}>
-                  <MaterialIcons name="eco" size={16} color="#00C896" />
-                  <Text style={styles.creditsText}>+{activity.credits}</Text>
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity) => (
+              <TouchableOpacity
+                key={activity.id}
+                style={styles.activityCard}
+                onPress={() => parentNavigation?.navigate('ActivityDetails', {
+                  selectedActivity: {
+                    ...activity,
+                    offset: activity.carbonImpact?.co2Offset || `${(activity.credits * 0.02).toFixed(2)} kg CO₂`,
+                  }
+                })}
+                activeOpacity={0.7}
+              >
+                <View style={styles.activityIcon}>
+                  <MaterialIcons name={activity.icon as any} size={20} color="#00C896" />
                 </View>
-                <Text style={styles.offsetText}>{activity.offset}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <View style={styles.activityDetails}>
+                  <Text style={styles.activityMerchant}>{activity.merchant}</Text>
+                  <Text style={styles.activityDate}>{activity.date}</Text>
+                  {activity.amount && (
+                    <Text style={styles.activityAmount}>₹{activity.amount}</Text>
+                  )}
+                </View>
+                <View style={styles.activityImpact}>
+                  <View style={styles.creditsEarned}>
+                    <MaterialIcons name="eco" size={16} color="#00C896" />
+                    <Text style={styles.creditsText}>+{activity.credits}</Text>
+                  </View>
+                  <Text style={styles.offsetText}>
+                    {activity.carbonImpact?.co2Offset || `${(activity.credits * 0.02).toFixed(2)} kg CO₂`}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="eco" size={48} color="#CCCCCC" />
+              <Text style={styles.emptyStateText}>No activities yet</Text>
+              <Text style={styles.emptyStateSubtext}>Start making eco-friendly payments to earn credits!</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -743,6 +678,25 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 40,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666666',
+    marginTop: 16,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#999999',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
 

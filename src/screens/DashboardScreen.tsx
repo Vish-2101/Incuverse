@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,46 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { getBalance, getCarbonCredits, getTransactions, initializeStorage } from '../utils/storage';
+import type { Transaction } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
 const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
+  const [balance, setBalance] = useState(0);
+  const [carbonCredits, setCarbonCredits] = useState(0);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+
+  // Load data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      console.log('Loading dashboard data...');
+      const bal = await getBalance();
+      const credits = await getCarbonCredits();
+      const transactions = await getTransactions();
+
+      console.log('Balance:', bal);
+      console.log('Credits:', credits);
+      console.log('Transactions:', transactions);
+
+      setBalance(bal);
+      setCarbonCredits(credits);
+      setRecentTransactions(transactions.slice(0, 3)); // Show only latest 3
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    }
+  };
   const quickActions = [
     {
       id: 1,
@@ -44,11 +80,6 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
     },
   ];
 
-  const recentTransactions = [
-    { id: 1, merchant: 'Starbucks', amount: '₹450', date: 'Oct 3, 2025', carbon: '+5 credits' },
-    { id: 2, merchant: 'Zomato', amount: '₹680', date: 'Oct 2, 2025', carbon: '+8 credits' },
-    { id: 3, merchant: 'Amazon', amount: '₹1,200', date: 'Oct 1, 2025', carbon: '+12 credits' },
-  ];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -70,8 +101,8 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Available Balance</Text>
-          <Text style={styles.balanceAmount}>₹25,00,500</Text>
-          <Text style={styles.carbonCredits}>Carbon Credits: 247</Text>
+          <Text style={styles.balanceAmount}>₹{balance.toLocaleString('en-IN')}</Text>
+          <Text style={styles.carbonCredits}>Carbon Credits: {carbonCredits}</Text>
         </View>
 
         <View style={styles.postInsightsSpacing} />
@@ -104,26 +135,34 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
             </TouchableOpacity>
           </View>
 
-          {recentTransactions.map((transaction) => (
-            <TouchableOpacity
-              key={transaction.id}
-              style={styles.transactionCard}
-              onPress={() => parentNavigation?.navigate('TransactionHistory')}
-              activeOpacity={0.7}
-            >
-              <View style={styles.transactionIcon}>
-                <MaterialIcons name="store" size={24} color="#00C896" />
-              </View>
-              <View style={styles.transactionDetails}>
-                <Text style={styles.merchantName}>{transaction.merchant}</Text>
-                <Text style={styles.transactionDate}>{transaction.date}</Text>
-              </View>
-              <View style={styles.transactionAmount}>
-                <Text style={styles.amountText}>{transaction.amount}</Text>
-                <Text style={styles.carbonText}>{transaction.carbon}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {recentTransactions && recentTransactions.length > 0 ? (
+            recentTransactions.map((transaction) => (
+              <TouchableOpacity
+                key={transaction.id}
+                style={styles.transactionCard}
+                onPress={() => parentNavigation?.navigate('TransactionHistory')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.transactionIcon}>
+                  <MaterialIcons name="store" size={24} color="#00C896" />
+                </View>
+                <View style={styles.transactionDetails}>
+                  <Text style={styles.merchantName}>{transaction.merchant || 'Unknown'}</Text>
+                  <Text style={styles.transactionDate}>{transaction.fullDate || transaction.date}</Text>
+                </View>
+                <View style={styles.transactionAmount}>
+                  <Text style={styles.amountText}>₹{transaction.amount?.toLocaleString('en-IN') || 0}</Text>
+                  <Text style={styles.carbonText}>+{transaction.credits || 0} credits</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyTransactions}>
+              <MaterialIcons name="receipt-long" size={48} color="#CCCCCC" />
+              <Text style={styles.emptyText}>No transactions yet</Text>
+              <Text style={styles.emptySubtext}>Make a payment to see your transactions here</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -356,6 +395,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#00C896',
     marginTop: 2,
+  },
+  emptyTransactions: {
+    alignItems: 'center',
+    padding: 40,
+    backgroundColor: 'white',
+    borderRadius: 12,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666666',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999999',
+    marginTop: 8,
+    textAlign: 'center',
   },
   insightsGrid: {
     flexDirection: 'row',

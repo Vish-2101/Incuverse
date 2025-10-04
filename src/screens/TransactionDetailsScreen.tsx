@@ -104,14 +104,14 @@ const TransactionDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ 
                 <MaterialIcons name="park" size={24} color="#4CAF50" />
                 <Text style={styles.impactLabel}>CO₂ Offset</Text>
                 <Text style={styles.impactValue}>
-                  {(parseInt(transaction.carbon.replace(/[^\d]/g, '')) * 0.02).toFixed(2)} kg
+                  {transaction.carbonImpact?.co2Offset || `${((transaction.credits || 0) * 0.02).toFixed(2)} kg`}
                 </Text>
               </View>
               <View style={styles.impactItem}>
                 <MaterialIcons name="nature" size={24} color="#8BC34A" />
                 <Text style={styles.impactLabel}>Trees Equivalent</Text>
                 <Text style={styles.impactValue}>
-                  {(parseInt(transaction.carbon.replace(/[^\d]/g, '')) * 0.001).toFixed(3)}
+                  {transaction.carbonImpact?.treesEquivalent || ((transaction.credits || 0) * 0.001).toFixed(3)}
                 </Text>
               </View>
             </View>
