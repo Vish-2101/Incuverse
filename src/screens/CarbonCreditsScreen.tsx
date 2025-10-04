@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const CarbonCreditsScreen: React.FC = () => {
+const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
 
   const carbonStats = {
@@ -204,16 +204,23 @@ const CarbonCreditsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Achievement Badges</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Achievement Badges</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('BadgeDetails')}>
+              <Text style={styles.seeAllText}>Know More</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.sectionSubtitle}>Complete challenges to unlock badges and earn bonus credits</Text>
           <View style={styles.badgesGrid}>
-            {achievementBadges.map((badge) => (
+            {achievementBadges.slice(0, 3).map((badge) => (
               <TouchableOpacity
                 key={badge.id}
                 style={[
                   styles.badgeCard,
                   !badge.earned && styles.badgeCardLocked,
                 ]}
+                onPress={() => navigation.navigate('BadgeDetails', { selectedBadge: badge })}
+                activeOpacity={0.7}
               >
                 <View style={styles.badgeHeader}>
                   <View style={[
@@ -222,13 +229,13 @@ const CarbonCreditsScreen: React.FC = () => {
                   ]}>
                     <MaterialIcons
                       name={badge.icon as any}
-                      size={28}
+                      size={32}
                       color={badge.earned ? '#00C896' : '#999999'}
                     />
                   </View>
                   {badge.earned && (
                     <View style={styles.earnedIndicator}>
-                      <MaterialIcons name="check-circle" size={16} color="#00C896" />
+                      <MaterialIcons name="check-circle" size={20} color="#00C896" />
                     </View>
                   )}
                 </View>
@@ -246,26 +253,32 @@ const CarbonCreditsScreen: React.FC = () => {
                       styles.badgeDescription,
                       !badge.earned && styles.badgeDescriptionLocked,
                     ]}
+                    numberOfLines={2}
                   >
                     {badge.description}
                   </Text>
-                  <Text
-                    style={[
-                      styles.badgeProgress,
-                      !badge.earned && styles.badgeProgressLocked,
-                    ]}
-                  >
-                    {badge.progress}
-                  </Text>
-                  {!badge.earned && (
-                    <View style={styles.requirementBox}>
-                      <Text style={styles.requirementText}>{badge.requirement}</Text>
-                    </View>
-                  )}
+                  <View style={styles.badgeProgressContainer}>
+                    <Text
+                      style={[
+                        styles.badgeProgress,
+                        !badge.earned && styles.badgeProgressLocked,
+                      ]}
+                    >
+                      {badge.progress}
+                    </Text>
+                    <MaterialIcons name="arrow-forward" size={16} color={badge.earned ? '#00C896' : '#CCCCCC'} />
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
           </View>
+          <TouchableOpacity
+            style={styles.viewAllBadgesButton}
+            onPress={() => navigation.navigate('BadgeDetails')}
+          >
+            <Text style={styles.viewAllBadgesText}>View All Badges</Text>
+            <MaterialIcons name="arrow-forward" size={20} color="#00C896" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -484,56 +497,61 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   badgesGrid: {
-    gap: 12,
+    gap: 16,
   },
   badgeCard: {
+    flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 16,
+    padding: 20,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
+    borderWidth: 2,
     borderColor: '#F0F0F0',
   },
   badgeCardLocked: {
-    opacity: 0.7,
+    opacity: 0.6,
     backgroundColor: '#FAFAFA',
+    borderColor: '#E5E5E5',
   },
   badgeHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
+    marginRight: 16,
+    position: 'relative',
   },
   badgeIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
   earnedIndicator: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 4,
-    elevation: 2,
+    borderRadius: 14,
+    padding: 2,
+    elevation: 3,
     shadowColor: '#00C896',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   badgeContent: {
     flex: 1,
+    justifyContent: 'center',
   },
   badgeTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     color: '#1A1A1A',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   badgeTitleLocked: {
     color: '#999999',
@@ -541,32 +559,41 @@ const styles = StyleSheet.create({
   badgeDescription: {
     fontSize: 13,
     color: '#666666',
-    lineHeight: 16,
+    lineHeight: 18,
     marginBottom: 8,
   },
   badgeDescriptionLocked: {
     color: '#AAAAAA',
   },
+  badgeProgressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   badgeProgress: {
     fontSize: 12,
     color: '#00C896',
-    fontWeight: '600',
-    marginBottom: 8,
+    fontWeight: '700',
   },
   badgeProgressLocked: {
     color: '#CCCCCC',
   },
-  requirementBox: {
-    backgroundColor: '#F8F9FA',
-    padding: 8,
-    borderRadius: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#E0E0E0',
+  viewAllBadgesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
-  requirementText: {
-    fontSize: 11,
-    color: '#666666',
-    fontStyle: 'italic',
+  viewAllBadgesText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#00C896',
+    marginRight: 8,
   },
   activityCard: {
     flexDirection: 'row',
