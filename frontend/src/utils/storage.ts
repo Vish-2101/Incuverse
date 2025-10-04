@@ -1,10 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+  getBalance as getMongoBalance,
+  updateBalance as updateMongoBalance,
+  getCarbonCredits as getMongoCarbonCredits,
+  updateCarbonCredits as updateMongoCarbonCredits,
+  getTransactions as getMongoTransactions,
+  addTransaction as addMongoTransaction,
+  processPayment as processMongoPayment,
+  getTheme as getMongoTheme,
+  updateTheme as updateMongoTheme,
+  initializeStorage as initializeMongoStorage,
+  setUserId as setMongoUserId,
+  clearAllData as clearMongoData
+} from '../services/mongoStorage';
 
 const STORAGE_KEYS = {
   BALANCE: '@ecocred_balance',
   CARBON_CREDITS: '@ecocred_carbon_credits',
   TRANSACTIONS: '@ecocred_transactions',
   THEME: '@ecocred_theme',
+  USER_ID: '@ecocred_user_id',
 };
 
 export interface Transaction {
@@ -27,170 +42,215 @@ export interface Transaction {
   };
 }
 
-// Initialize default values
+// Initialize default values - now uses MongoDB
 export const initializeStorage = async () => {
   try {
-    const balance = await AsyncStorage.getItem(STORAGE_KEYS.BALANCE);
-    const credits = await AsyncStorage.getItem(STORAGE_KEYS.CARBON_CREDITS);
-    const transactions = await AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
+    // Check if user is logged in
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    
+    if (userId) {
+      // Initialize MongoDB storage
+      await initializeMongoStorage(userId);
+    } else {
+      // Fallback to AsyncStorage for offline mode
+      const balance = await AsyncStorage.getItem(STORAGE_KEYS.BALANCE);
+      const credits = await AsyncStorage.getItem(STORAGE_KEYS.CARBON_CREDITS);
+      const transactions = await AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+      const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
 
-    if (balance === null) {
-      await AsyncStorage.setItem(STORAGE_KEYS.BALANCE, '100000'); // ₹1,00,000 for testing
-      console.log('✅ Initial balance set: ₹1,00,000');
-    }
-    if (credits === null) {
-      await AsyncStorage.setItem(STORAGE_KEYS.CARBON_CREDITS, '245');
-      console.log('✅ Initial credits set: 245');
-    }
-    if (theme === null) {
-      await AsyncStorage.setItem(STORAGE_KEYS.THEME, 'light');
-      console.log('✅ Initial theme set: light');
-    }
-    if (transactions === null) {
-      // Add some test transactions for testing
-      const testTransactions: Transaction[] = [
-        {
-          id: 'TXN001',
-          merchant: 'Starbucks',
-          amount: 450,
-          credits: 4,
-          date: 'Oct 3, 2:30 PM',
-          time: '2:30 PM',
-          fullDate: 'Oct 3, 2024',
-          category: 'Food & Dining',
-          type: 'payment',
-          icon: 'restaurant',
-          status: 'Completed',
-          carbonImpact: {
-            co2Offset: '0.09 kg',
-            treesEquivalent: '0.004',
-            creditsEarned: 4,
-            breakdown: [
-              { item: 'Eco-friendly transaction', value: '60%' },
-              { item: 'Sustainable payment', value: '25%' },
-              { item: 'Carbon offset contribution', value: '15%' },
-            ],
+      if (balance === null) {
+        await AsyncStorage.setItem(STORAGE_KEYS.BALANCE, '100000'); // ₹1,00,000 for testing
+        console.log('✅ Initial balance set: ₹1,00,000');
+      }
+      if (credits === null) {
+        await AsyncStorage.setItem(STORAGE_KEYS.CARBON_CREDITS, '245');
+        console.log('✅ Initial credits set: 245');
+      }
+      if (theme === null) {
+        await AsyncStorage.setItem(STORAGE_KEYS.THEME, 'light');
+        console.log('✅ Initial theme set: light');
+      }
+      if (transactions === null) {
+        // Add some test transactions for testing
+        const testTransactions: Transaction[] = [
+          {
+            id: 'TXN001',
+            merchant: 'Starbucks',
+            amount: 450,
+            credits: 4,
+            date: 'Oct 3, 2:30 PM',
+            time: '2:30 PM',
+            fullDate: 'Oct 3, 2024',
+            category: 'Food & Dining',
+            type: 'payment',
+            icon: 'restaurant',
+            status: 'Completed',
+            carbonImpact: {
+              co2Offset: '0.09 kg',
+              treesEquivalent: '0.004',
+              creditsEarned: 4,
+              breakdown: [
+                { item: 'Eco-friendly transaction', value: '60%' },
+                { item: 'Sustainable payment', value: '25%' },
+                { item: 'Carbon offset contribution', value: '15%' },
+              ],
+            },
           },
-        },
-        {
-          id: 'TXN002',
-          merchant: 'Amazon',
-          amount: 1200,
-          credits: 12,
-          date: 'Oct 2, 3:15 PM',
-          time: '3:15 PM',
-          fullDate: 'Oct 2, 2024',
-          category: 'Shopping',
-          type: 'payment',
-          icon: 'shopping-cart',
-          status: 'Completed',
-          carbonImpact: {
-            co2Offset: '0.24 kg',
-            treesEquivalent: '0.012',
-            creditsEarned: 12,
-            breakdown: [
-              { item: 'Eco-certified products', value: '55%' },
-              { item: 'Recycled packaging', value: '30%' },
-              { item: 'Carbon offset shipping', value: '15%' },
-            ],
+          {
+            id: 'TXN002',
+            merchant: 'Amazon',
+            amount: 1200,
+            credits: 12,
+            date: 'Oct 2, 3:15 PM',
+            time: '3:15 PM',
+            fullDate: 'Oct 2, 2024',
+            category: 'Shopping',
+            type: 'payment',
+            icon: 'shopping-cart',
+            status: 'Completed',
+            carbonImpact: {
+              co2Offset: '0.24 kg',
+              treesEquivalent: '0.012',
+              creditsEarned: 12,
+              breakdown: [
+                { item: 'Eco-certified products', value: '55%' },
+                { item: 'Recycled packaging', value: '30%' },
+                { item: 'Carbon offset shipping', value: '15%' },
+              ],
+            },
           },
-        },
-        {
-          id: 'TXN003',
-          merchant: 'Uber',
-          amount: 350,
-          credits: 3,
-          date: 'Oct 1, 11:20 AM',
-          time: '11:20 AM',
-          fullDate: 'Oct 1, 2024',
-          category: 'Transport',
-          type: 'payment',
-          icon: 'directions-car',
-          status: 'Completed',
-          carbonImpact: {
-            co2Offset: '0.07 kg',
-            treesEquivalent: '0.003',
-            creditsEarned: 3,
-            breakdown: [
-              { item: 'Eco-friendly ride', value: '50%' },
-              { item: 'Carbon offset', value: '30%' },
-              { item: 'Green initiative', value: '20%' },
-            ],
+          {
+            id: 'TXN003',
+            merchant: 'Uber',
+            amount: 350,
+            credits: 3,
+            date: 'Oct 1, 11:20 AM',
+            time: '11:20 AM',
+            fullDate: 'Oct 1, 2024',
+            category: 'Transport',
+            type: 'payment',
+            icon: 'directions-car',
+            status: 'Completed',
+            carbonImpact: {
+              co2Offset: '0.07 kg',
+              treesEquivalent: '0.003',
+              creditsEarned: 3,
+              breakdown: [
+                { item: 'Eco-friendly ride', value: '50%' },
+                { item: 'Carbon offset', value: '30%' },
+                { item: 'Green initiative', value: '20%' },
+              ],
+            },
           },
-        },
-      ];
-      await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(testTransactions));
-      console.log('✅ Test transactions added to storage');
+        ];
+        await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(testTransactions));
+        console.log('✅ Test transactions added to storage');
+      }
     }
   } catch (error) {
     console.error('Error initializing storage:', error);
   }
 };
 
-// Get current balance
+// Get current balance - now uses MongoDB
 export const getBalance = async (): Promise<number> => {
   try {
-    const balance = await AsyncStorage.getItem(STORAGE_KEYS.BALANCE);
-    return balance ? parseFloat(balance) : 50000;
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      return await getMongoBalance();
+    } else {
+      // Fallback to AsyncStorage
+      const balance = await AsyncStorage.getItem(STORAGE_KEYS.BALANCE);
+      return balance ? parseFloat(balance) : 100000;
+    }
   } catch (error) {
     console.error('Error getting balance:', error);
-    return 50000;
+    return 100000;
   }
 };
 
-// Update balance
+// Update balance - now uses MongoDB
 export const updateBalance = async (newBalance: number): Promise<void> => {
   try {
-    await AsyncStorage.setItem(STORAGE_KEYS.BALANCE, newBalance.toString());
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      await updateMongoBalance(newBalance);
+    } else {
+      // Fallback to AsyncStorage
+      await AsyncStorage.setItem(STORAGE_KEYS.BALANCE, newBalance.toString());
+    }
   } catch (error) {
     console.error('Error updating balance:', error);
   }
 };
 
-// Get carbon credits
+// Get carbon credits - now uses MongoDB
 export const getCarbonCredits = async (): Promise<number> => {
   try {
-    const credits = await AsyncStorage.getItem(STORAGE_KEYS.CARBON_CREDITS);
-    return credits ? parseInt(credits) : 245;
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      return await getMongoCarbonCredits();
+    } else {
+      // Fallback to AsyncStorage
+      const credits = await AsyncStorage.getItem(STORAGE_KEYS.CARBON_CREDITS);
+      return credits ? parseInt(credits) : 245;
+    }
   } catch (error) {
     console.error('Error getting carbon credits:', error);
     return 245;
   }
 };
 
-// Update carbon credits
+// Update carbon credits - now uses MongoDB
 export const updateCarbonCredits = async (newCredits: number): Promise<void> => {
   try {
-    await AsyncStorage.setItem(STORAGE_KEYS.CARBON_CREDITS, newCredits.toString());
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      await updateMongoCarbonCredits(newCredits);
+    } else {
+      // Fallback to AsyncStorage
+      await AsyncStorage.setItem(STORAGE_KEYS.CARBON_CREDITS, newCredits.toString());
+    }
   } catch (error) {
     console.error('Error updating carbon credits:', error);
   }
 };
 
-// Get all transactions
+// Get all transactions - now uses MongoDB
 export const getTransactions = async (): Promise<Transaction[]> => {
   try {
-    const transactions = await AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    return transactions ? JSON.parse(transactions) : [];
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      return await getMongoTransactions();
+    } else {
+      // Fallback to AsyncStorage
+      const transactions = await AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+      return transactions ? JSON.parse(transactions) : [];
+    }
   } catch (error) {
     console.error('Error getting transactions:', error);
     return [];
   }
 };
 
-// Add new transaction
+// Add new transaction - now uses MongoDB
 export const addTransaction = async (transaction: Transaction): Promise<void> => {
   try {
-    const transactions = await getTransactions();
-    const updatedTransactions = [transaction, ...transactions];
-    await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(updatedTransactions));
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      await addMongoTransaction(transaction);
+    } else {
+      // Fallback to AsyncStorage
+      const transactions = await getTransactions();
+      const updatedTransactions = [transaction, ...transactions];
+      await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(updatedTransactions));
+    }
   } catch (error) {
     console.error('Error adding transaction:', error);
   }
 };
 
-// Process payment (deduct balance, add credits, save transaction)
+// Process payment (deduct balance, add credits, save transaction) - now uses MongoDB
 export const processPayment = async (
   amount: number,
   merchant: string,
@@ -198,73 +258,80 @@ export const processPayment = async (
   icon: string = 'payment'
 ): Promise<{ success: boolean; message: string; transaction?: Transaction }> => {
   try {
-    console.log('=== PROCESSING PAYMENT ===');
-    console.log('Amount:', amount);
-    console.log('Merchant:', merchant);
-    console.log('Category:', category);
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      // Use MongoDB for logged-in users
+      return await processMongoPayment(amount, merchant, category, icon);
+    } else {
+      // Fallback to AsyncStorage for offline mode
+      console.log('=== PROCESSING PAYMENT (OFFLINE) ===');
+      console.log('Amount:', amount);
+      console.log('Merchant:', merchant);
+      console.log('Category:', category);
 
-    const currentBalance = await getBalance();
-    console.log('Current Balance:', currentBalance);
+      const currentBalance = await getBalance();
+      console.log('Current Balance:', currentBalance);
 
-    if (currentBalance < amount) {
-      console.log('INSUFFICIENT BALANCE!');
-      return { success: false, message: 'Insufficient balance' };
+      if (currentBalance < amount) {
+        console.log('INSUFFICIENT BALANCE!');
+        return { success: false, message: 'Insufficient balance' };
+      }
+
+      // Calculate carbon credits (1 credit per ₹100 spent)
+      const creditsEarned = Math.floor(amount / 100);
+      console.log('Credits to earn:', creditsEarned);
+
+      // Deduct balance
+      const newBalance = currentBalance - amount;
+      console.log('New Balance will be:', newBalance);
+      await updateBalance(newBalance);
+      console.log('Balance updated in storage');
+
+      // Add carbon credits
+      const currentCredits = await getCarbonCredits();
+      console.log('Current Credits:', currentCredits);
+      const newCredits = currentCredits + creditsEarned;
+      console.log('New Credits will be:', newCredits);
+      await updateCarbonCredits(newCredits);
+      console.log('Credits updated in storage');
+
+      // Create transaction
+      const now = new Date();
+      const transaction: Transaction = {
+        id: `TXN${Date.now()}`,
+        merchant,
+        amount,
+        credits: creditsEarned,
+        date: formatDate(now),
+        time: formatTime(now),
+        fullDate: formatFullDate(now),
+        category,
+        type: 'payment',
+        icon,
+        status: 'Completed',
+        carbonImpact: {
+          co2Offset: `${(creditsEarned * 0.02).toFixed(2)} kg`,
+          treesEquivalent: `${(creditsEarned * 0.001).toFixed(3)}`,
+          creditsEarned,
+          breakdown: [
+            { item: 'Eco-friendly transaction', value: '60%' },
+            { item: 'Sustainable payment', value: '25%' },
+            { item: 'Carbon offset contribution', value: '15%' },
+          ],
+        },
+      };
+
+      console.log('Adding transaction to storage...');
+      await addTransaction(transaction);
+      console.log('Transaction added!');
+      console.log('=== PAYMENT COMPLETE ===');
+
+      return {
+        success: true,
+        message: 'Payment successful',
+        transaction,
+      };
     }
-
-    // Calculate carbon credits (1 credit per ₹100 spent)
-    const creditsEarned = Math.floor(amount / 100);
-    console.log('Credits to earn:', creditsEarned);
-
-    // Deduct balance
-    const newBalance = currentBalance - amount;
-    console.log('New Balance will be:', newBalance);
-    await updateBalance(newBalance);
-    console.log('Balance updated in storage');
-
-    // Add carbon credits
-    const currentCredits = await getCarbonCredits();
-    console.log('Current Credits:', currentCredits);
-    const newCredits = currentCredits + creditsEarned;
-    console.log('New Credits will be:', newCredits);
-    await updateCarbonCredits(newCredits);
-    console.log('Credits updated in storage');
-
-    // Create transaction
-    const now = new Date();
-    const transaction: Transaction = {
-      id: `TXN${Date.now()}`,
-      merchant,
-      amount,
-      credits: creditsEarned,
-      date: formatDate(now),
-      time: formatTime(now),
-      fullDate: formatFullDate(now),
-      category,
-      type: 'payment',
-      icon,
-      status: 'Completed',
-      carbonImpact: {
-        co2Offset: `${(creditsEarned * 0.02).toFixed(2)} kg`,
-        treesEquivalent: `${(creditsEarned * 0.001).toFixed(3)}`,
-        creditsEarned,
-        breakdown: [
-          { item: 'Eco-friendly transaction', value: '60%' },
-          { item: 'Sustainable payment', value: '25%' },
-          { item: 'Carbon offset contribution', value: '15%' },
-        ],
-      },
-    };
-
-    console.log('Adding transaction to storage...');
-    await addTransaction(transaction);
-    console.log('Transaction added!');
-    console.log('=== PAYMENT COMPLETE ===');
-
-    return {
-      success: true,
-      message: 'Payment successful',
-      transaction,
-    };
   } catch (error) {
     console.error('!!! ERROR PROCESSING PAYMENT !!!', error);
     return { success: false, message: 'Payment failed' };
@@ -290,36 +357,58 @@ const formatFullDate = (date: Date): string => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
-// Get theme
+// Get theme - now uses MongoDB
 export const getTheme = async (): Promise<'light' | 'dark'> => {
   try {
-    const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
-    return (theme as 'light' | 'dark') || 'light';
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      return await getMongoTheme();
+    } else {
+      // Fallback to AsyncStorage
+      const theme = await AsyncStorage.getItem(STORAGE_KEYS.THEME);
+      return (theme as 'light' | 'dark') || 'light';
+    }
   } catch (error) {
     console.error('Error getting theme:', error);
     return 'light';
   }
 };
 
-// Update theme
+// Update theme - now uses MongoDB
 export const updateTheme = async (theme: 'light' | 'dark'): Promise<void> => {
   try {
-    await AsyncStorage.setItem(STORAGE_KEYS.THEME, theme);
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      await updateMongoTheme(theme);
+    } else {
+      // Fallback to AsyncStorage
+      await AsyncStorage.setItem(STORAGE_KEYS.THEME, theme);
+    }
   } catch (error) {
     console.error('Error updating theme:', error);
   }
 };
 
+// Set user ID (call this after successful login)
+export const setUserId = async (userId: string): Promise<void> => {
+  await setMongoUserId(userId);
+};
+
 // Clear all data (for testing)
 export const clearAllData = async (): Promise<void> => {
   try {
-    await AsyncStorage.multiRemove([
-      STORAGE_KEYS.BALANCE,
-      STORAGE_KEYS.CARBON_CREDITS,
-      STORAGE_KEYS.TRANSACTIONS,
-      STORAGE_KEYS.THEME,
-    ]);
-    await initializeStorage();
+    const userId = await AsyncStorage.getItem(STORAGE_KEYS.USER_ID);
+    if (userId) {
+      await clearMongoData();
+    } else {
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.BALANCE,
+        STORAGE_KEYS.CARBON_CREDITS,
+        STORAGE_KEYS.TRANSACTIONS,
+        STORAGE_KEYS.THEME,
+      ]);
+      await initializeStorage();
+    }
   } catch (error) {
     console.error('Error clearing data:', error);
   }

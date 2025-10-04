@@ -17,8 +17,16 @@ export const getApiBaseUrl = (): string => {
 export const API_ENDPOINTS = {
   verify: `${getApiBaseUrl()}/verify`,
   users: `${getApiBaseUrl()}/users`,
+  transactions: `${getApiBaseUrl()}/transactions`,
+  balance: `${getApiBaseUrl()}/balance`,
+  carbonCredits: `${getApiBaseUrl()}/carbon-credits`,
+  profile: `${getApiBaseUrl()}/profile`,
 };
 
 // Export individual endpoint functions for convenience
 export const getVerifyApiUrl = (): string => `${getApiBaseUrl()}/verify`;
 export const getUsersApiUrl = (): string => `${getApiBaseUrl()}/users`;
+export const getTransactionsApiUrl = (): string => `${getApiBaseUrl()}/transactions`;
+export const getBalanceApiUrl = (): string => `${getApiBaseUrl()}/balance`;
+export const getCarbonCreditsApiUrl = (): string => `${getApiBaseUrl()}/carbon-credits`;
+export const getProfileApiUrl = (): string => `${getApiBaseUrl()}/profile`;

@@ -93,6 +93,7 @@ const verifyLoginOtp = async (req, res) => {
       success: true,
       message: 'Login successful!',
       token,
+      userId: user._id, // Add userId for MongoDB integration
       user: {
         id: user._id,
         fullName: user.fullName,

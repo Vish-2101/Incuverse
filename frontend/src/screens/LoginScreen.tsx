@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../contexts/ThemeContext';
 import { getThemeColors } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
+import { setUserId } from '../utils/storage';
 
 // --- IMPORTANT ---
 // Replace with your computer's local IP address.
@@ -85,6 +86,12 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       if (response.ok && data.token) {
         // Securely store the JWT
         await AsyncStorage.setItem('userToken', data.token);
+        
+        // Set user ID for MongoDB integration
+        if (data.userId) {
+          await setUserId(data.userId);
+        }
+        
         Alert.alert('Success', 'Login successful!');
         navigation.navigate('DashboardTabs');
       } else {
