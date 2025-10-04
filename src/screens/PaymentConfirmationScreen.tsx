@@ -64,6 +64,10 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   };
 
   const handlePayNow = () => {
+    if (!accountNumber || accountNumber.trim().length === 0) {
+      Alert.alert('Error', 'Please enter account/consumer number');
+      return;
+    }
     if (!amount || parseFloat(amount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
@@ -109,59 +113,64 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   if (showPinEntry) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
-          <TouchableOpacity onPress={() => setShowPinEntry(false)} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={24} color="white" />
+        <View style={styles.pinHeaderContainer}>
+          <TouchableOpacity onPress={() => setShowPinEntry(false)} style={styles.pinBackButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#333333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Enter PIN</Text>
-          <Text style={styles.headerSubtitle}>Confirm your payment</Text>
-        </LinearGradient>
+        </View>
 
-        <Animated.View style={[styles.pinContainer, { opacity: fadeAnim }]}>
-          <View style={styles.paymentSummary}>
-            <MaterialIcons name="lock" size={48} color="#00C896" />
-            <Text style={styles.summaryAmount}>₹{amount}</Text>
-            <Text style={styles.summaryProvider}>{provider.name}</Text>
-            <Text style={styles.summaryCategory}>{category} Bill Payment</Text>
-          </View>
-
-          <View style={styles.pinInputContainer}>
-            <Text style={styles.pinLabel}>Enter 4-digit PIN</Text>
-            <View style={styles.pinBoxes}>
-              {pin.map((digit, index) => (
-                <TextInput
-                  key={index}
-                  ref={pinRefs[index]}
-                  style={styles.pinBox}
-                  value={digit}
-                  onChangeText={(value) => handlePinChange(value, index)}
-                  onKeyPress={(e) => handlePinKeyPress(e, index)}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  secureTextEntry
-                  selectTextOnFocus
-                />
-              ))}
+        <ScrollView
+          style={styles.pinScrollContainer}
+          contentContainerStyle={styles.pinScrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Animated.View style={[styles.pinContainer, { opacity: fadeAnim }]}>
+            <View style={styles.paymentSummary}>
+              <MaterialIcons name="lock" size={40} color="#00C896" />
+              <Text style={styles.summaryAmount}>₹{amount}</Text>
+              <Text style={styles.summaryProvider}>{provider.name}</Text>
+              <Text style={styles.summaryCategory}>{category} Bill Payment</Text>
             </View>
-          </View>
 
-          <TouchableOpacity
-            style={[styles.confirmButton, isProcessing && styles.confirmButtonDisabled]}
-            onPress={handleConfirmPayment}
-            disabled={isProcessing}
-          >
-            <LinearGradient colors={['#00C896', '#00A876']} style={styles.confirmGradient}>
-              {isProcessing ? (
-                <Text style={styles.confirmButtonText}>Processing...</Text>
-              ) : (
-                <>
-                  <MaterialIcons name="check-circle" size={24} color="white" />
-                  <Text style={styles.confirmButtonText}>Confirm Payment</Text>
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-        </Animated.View>
+            <View style={styles.pinInputContainer}>
+              <Text style={styles.pinLabel}>Enter 4-digit PIN</Text>
+              <View style={styles.pinBoxes}>
+                {pin.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={pinRefs[index]}
+                    style={styles.pinBox}
+                    value={digit}
+                    onChangeText={(value) => handlePinChange(value, index)}
+                    onKeyPress={(e) => handlePinKeyPress(e, index)}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    secureTextEntry
+                    selectTextOnFocus
+                  />
+                ))}
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.confirmButton, isProcessing && styles.confirmButtonDisabled]}
+              onPress={handleConfirmPayment}
+              disabled={isProcessing}
+            >
+              <LinearGradient colors={['#00C896', '#00A876']} style={styles.confirmGradient}>
+                {isProcessing ? (
+                  <Text style={styles.confirmButtonText}>Processing...</Text>
+                ) : (
+                  <>
+                    <MaterialIcons name="check-circle" size={24} color="white" />
+                    <Text style={styles.confirmButtonText}>Confirm Payment</Text>
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+        </ScrollView>
       </View>
     );
   }
@@ -169,7 +178,12 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('DashboardTabs', { screen: 'Payments' });
+          }}
+          style={styles.backButton}
+        >
           <MaterialIcons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Payment Details</Text>
@@ -265,8 +279,22 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.payButton} onPress={handlePayNow}>
-          <LinearGradient colors={['#00C896', '#00A876']} style={styles.payGradient}>
+        <TouchableOpacity
+          style={[
+            styles.payButton,
+            (!accountNumber || !amount || !selectedAccount) && styles.payButtonDisabled
+          ]}
+          onPress={handlePayNow}
+          disabled={!accountNumber || !amount || !selectedAccount}
+        >
+          <LinearGradient
+            colors={
+              (!accountNumber || !amount || !selectedAccount)
+                ? ['#CCCCCC', '#AAAAAA']
+                : ['#00C896', '#00A876']
+            }
+            style={styles.payGradient}
+          >
             <Text style={styles.payButtonText}>
               Pay {amount ? `₹${amount}` : 'Now'}
             </Text>
@@ -287,6 +315,17 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 20,
+  },
+  pinHeaderContainer: {
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#F8F9FA',
+  },
+  pinBackButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
   },
   backButton: {
     marginBottom: 16,
@@ -444,6 +483,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
   },
+  payButtonDisabled: {
+    opacity: 0.6,
+  },
   payGradient: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -460,17 +502,23 @@ const styles = StyleSheet.create({
     height: 20,
   },
   // PIN Entry Styles
-  pinContainer: {
+  pinScrollContainer: {
     flex: 1,
+  },
+  pinScrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  pinContainer: {
     padding: 20,
-    justifyContent: 'center',
+    paddingTop: 10,
   },
   paymentSummary: {
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 32,
-    marginBottom: 40,
+    padding: 20,
+    marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -478,27 +526,27 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   summaryAmount: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: 'bold',
     color: '#333333',
-    marginTop: 16,
+    marginTop: 12,
   },
   summaryProvider: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#333333',
-    marginTop: 8,
+    marginTop: 6,
   },
   summaryCategory: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666666',
     marginTop: 4,
   },
   pinInputContainer: {
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
