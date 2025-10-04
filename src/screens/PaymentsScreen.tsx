@@ -25,7 +25,7 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
 
   const paymentCategories = [
     { id: 1, icon: 'flash-on', title: 'Electricity', color: '#FFB020', credits: 10 },
-    { id: 2, icon: 'water-drop', title: 'Water', color: '#2196F3', credits: 8 },
+    { id: 2, icon: 'flight', title: 'Airlines', color: '#2196F3', credits: 20 },
     { id: 3, icon: 'phone-android', title: 'Mobile', color: '#9C27B0', credits: 5 },
     { id: 4, icon: 'wifi', title: 'Internet', color: '#FF5722', credits: 7 },
     { id: 5, icon: 'local-gas-station', title: 'Gas', color: '#FF9800', credits: 9 },

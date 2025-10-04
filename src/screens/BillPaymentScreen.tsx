@@ -34,12 +34,13 @@ const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({ route, navigation
         { id: 5, name: 'Torrent Power', logo: '⚡', popular: true },
         { id: 6, name: 'MSEDCL', logo: '⚡', popular: false },
       ],
-      'Water': [
-        { id: 1, name: 'Delhi Jal Board', logo: '💧', popular: true },
-        { id: 2, name: 'Mumbai Water Supply', logo: '💧', popular: true },
-        { id: 3, name: 'Bangalore Water Supply', logo: '💧', popular: false },
-        { id: 4, name: 'Chennai Metro Water', logo: '💧', popular: false },
-        { id: 5, name: 'Hyderabad Water Board', logo: '💧', popular: true },
+      'Airlines': [
+        { id: 1, name: 'IndiGo', logo: '✈️', popular: true },
+        { id: 2, name: 'Air India', logo: '🛫', popular: true },
+        { id: 3, name: 'Vistara', logo: '✈️', popular: true },
+        { id: 4, name: 'SpiceJet', logo: '🛫', popular: false },
+        { id: 5, name: 'Air Asia India', logo: '✈️', popular: false },
+        { id: 6, name: 'GoFirst', logo: '🛫', popular: false },
       ],
       'Mobile': [
         { id: 1, name: 'Airtel', logo: '📱', popular: true },
