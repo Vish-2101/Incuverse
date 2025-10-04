@@ -10,8 +10,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { getCarbonCredits, getTransactions, Transaction } from '../utils/storage';
+import { getTransactions, Transaction } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
+import { useCredits } from '../contexts/CreditsContext';
 import { getThemeColors } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -19,10 +20,10 @@ const { width } = Dimensions.get('window');
 
 const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
   const { theme, isDark } = useTheme();
+  const { credits: totalCredits, refreshCredits } = useCredits();
   const themeColors = getThemeColors(theme);
-  
+
   const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [totalCredits, setTotalCredits] = useState(0);
   const [recentActivities, setRecentActivities] = useState<Transaction[]>([]);
 
   useFocusEffect(
@@ -36,9 +37,8 @@ const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }>
   }, []);
 
   const loadData = async () => {
-    const credits = await getCarbonCredits();
+    await refreshCredits();
     const transactions = await getTransactions();
-    setTotalCredits(credits);
     setRecentActivities(transactions.slice(0, 4)); // Show latest 4
   };
 

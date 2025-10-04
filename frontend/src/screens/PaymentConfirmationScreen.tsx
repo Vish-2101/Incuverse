@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { processPayment } from '../utils/storage';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PaymentConfirmationScreenProps {
   route: any;
@@ -23,6 +24,8 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   navigation,
 }) => {
   const { category, provider } = route.params;
+  const { isDark } = useTheme();
+  const styles = getStyles(isDark);
   const [amount, setAmount] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
@@ -186,7 +189,7 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
       <View style={styles.container}>
         <View style={styles.pinHeaderContainer}>
           <TouchableOpacity onPress={() => setShowPinEntry(false)} style={styles.pinBackButton}>
-            <MaterialIcons name="arrow-back" size={24} color="#333333" />
+            <MaterialIcons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#333333'} />
           </TouchableOpacity>
         </View>
 
@@ -277,10 +280,11 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Enter Account/Consumer Number</Text>
           <View style={styles.inputContainer}>
-            <MaterialIcons name="receipt" size={20} color="#666666" />
+            <MaterialIcons name="receipt" size={20} color={isDark ? '#AAAAAA' : '#666666'} />
             <TextInput
               style={styles.input}
               placeholder="Enter account number"
+              placeholderTextColor={isDark ? '#888888' : '#999999'}
               value={accountNumber}
               onChangeText={setAccountNumber}
               keyboardType="numeric"
@@ -291,10 +295,11 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Enter Amount</Text>
           <View style={styles.inputContainer}>
-            <MaterialIcons name="currency-rupee" size={20} color="#666666" />
+            <MaterialIcons name="currency-rupee" size={20} color={isDark ? '#AAAAAA' : '#666666'} />
             <TextInput
               style={styles.input}
               placeholder="Enter amount"
+              placeholderTextColor={isDark ? '#888888' : '#999999'}
               value={amount}
               onChangeText={setAmount}
               keyboardType="decimal-pad"
@@ -377,10 +382,10 @@ const PaymentConfirmationScreen: React.FC<PaymentConfirmationScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -391,7 +396,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   pinBackButton: {
     width: 40,
@@ -416,7 +421,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   providerCard: {
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -434,7 +439,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -445,12 +450,12 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 4,
   },
   providerCategory: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
   },
   section: {
     marginBottom: 24,
@@ -458,13 +463,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 12,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -478,7 +483,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     marginLeft: 12,
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
   },
   creditsInfo: {
     flexDirection: 'row',
@@ -498,7 +503,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -523,7 +528,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -537,18 +542,18 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 4,
   },
   accountNumber: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
   },
   footer: {
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    borderTopColor: isDark ? '#444444' : '#EEEEEE',
   },
   payButton: {
     borderRadius: 12,
@@ -586,7 +591,7 @@ const styles = StyleSheet.create({
   },
   paymentSummary: {
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -599,22 +604,22 @@ const styles = StyleSheet.create({
   summaryAmount: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginTop: 12,
   },
   summaryProvider: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginTop: 6,
   },
   summaryCategory: {
     fontSize: 13,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginTop: 4,
   },
   pinInputContainer: {
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -627,7 +632,7 @@ const styles = StyleSheet.create({
   pinLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -645,7 +650,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
+    backgroundColor: isDark ? '#1A1A1A' : 'white',
   },
   confirmButton: {
     borderRadius: 12,
@@ -669,7 +675,7 @@ const styles = StyleSheet.create({
   // Success Screen Styles
   successContainer: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -691,7 +697,7 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 16,
   },
   successAmount: {
@@ -702,13 +708,13 @@ const styles = StyleSheet.create({
   },
   successProvider: {
     fontSize: 18,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 32,
   },
   successCreditsCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -20,6 +21,8 @@ interface BillPaymentScreenProps {
 
 const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({ route, navigation }) => {
   const { category } = route.params;
+  const { isDark } = useTheme();
+  const styles = getStyles(isDark);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
 
@@ -145,10 +148,11 @@ const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({ route, navigation
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={20} color="#666666" />
+          <MaterialIcons name="search" size={20} color={isDark ? '#AAAAAA' : '#666666'} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search provider"
+            placeholderTextColor={isDark ? '#888888' : '#999999'}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -202,10 +206,10 @@ const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({ route, navigation
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     marginLeft: 12,
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
   },
   section: {
     marginBottom: 32,
@@ -255,14 +259,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 16,
   },
   providerCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -281,7 +285,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     flex: 1,
   },
   bottomSpacing: {

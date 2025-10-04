@@ -10,9 +10,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { getBalance, getCarbonCredits, getTransactions, initializeStorage } from '../utils/storage';
+import { getBalance, getTransactions, initializeStorage } from '../utils/storage';
 import type { Transaction } from '../utils/storage';
 import { useTheme } from '../contexts/ThemeContext';
+import { useCredits } from '../contexts/CreditsContext';
 import { getThemeColors, createThemedStyles } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -20,11 +21,11 @@ const { width } = Dimensions.get('window');
 
 const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
   const { theme, isDark } = useTheme();
+  const { credits: carbonCredits, refreshCredits } = useCredits();
   const themeColors = getThemeColors(theme);
   const themedStyles = createThemedStyles(theme);
-  
+
   const [balance, setBalance] = useState(0);
-  const [carbonCredits, setCarbonCredits] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
 
   // Load data when screen comes into focus
@@ -42,15 +43,14 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
     try {
       console.log('Loading dashboard data...');
       const bal = await getBalance();
-      const credits = await getCarbonCredits();
       const transactions = await getTransactions();
+      await refreshCredits();
 
       console.log('Balance:', bal);
-      console.log('Credits:', credits);
+      console.log('Credits:', carbonCredits);
       console.log('Transactions:', transactions);
 
       setBalance(bal);
-      setCarbonCredits(credits);
       setRecentTransactions(transactions.slice(0, 3)); // Show only latest 3
     } catch (error) {
       console.error('Error loading dashboard data:', error);

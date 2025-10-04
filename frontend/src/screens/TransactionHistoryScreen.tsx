@@ -11,8 +11,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getTransactions } from '../utils/storage';
 import type { Transaction } from '../utils/storage';
+import { useTheme } from '../contexts/ThemeContext';
 
 const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const { isDark } = useTheme();
+  const styles = getStyles(isDark);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
 
@@ -38,6 +41,14 @@ const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation })
     { id: 'shopping', label: 'Shopping' },
     { id: 'transport', label: 'Transport' },
     { id: 'entertainment', label: 'Entertainment' },
+    { id: 'electricity', label: 'Electricity' },
+    { id: 'airlines', label: 'Airlines' },
+    { id: 'mobile', label: 'Mobile' },
+    { id: 'internet', label: 'Internet' },
+    { id: 'gas', label: 'Gas' },
+    { id: 'creditcard', label: 'Credit Card' },
+    { id: 'insurance', label: 'Insurance' },
+    { id: 'rent', label: 'Rent' },
   ];
 
   const getFilteredTransactions = () => {
@@ -47,8 +58,16 @@ const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation })
       shopping: 'Shopping',
       transport: 'Transport',
       entertainment: 'Entertainment',
+      electricity: 'Electricity',
+      airlines: 'Airlines',
+      mobile: 'Mobile',
+      internet: 'Internet',
+      gas: 'Gas',
+      creditcard: 'Credit Card',
+      insurance: 'Insurance',
+      rent: 'Rent',
     };
-    return allTransactions.filter(t => t.type === filterMap[selectedFilter]);
+    return allTransactions.filter(t => t.category === filterMap[selectedFilter]);
   };
 
   const filteredTransactions = getFilteredTransactions();
@@ -154,10 +173,10 @@ const TransactionHistoryScreen: React.FC<{ navigation: any }> = ({ navigation })
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -218,16 +237,17 @@ const styles = StyleSheet.create({
   filterContainer: {
     paddingHorizontal: 20,
     marginBottom: 20,
+    maxHeight: 50,
   },
   filterChip: {
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     marginRight: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: isDark ? '#444444' : '#E0E0E0',
+    alignSelf: 'flex-start',
   },
   filterChipActive: {
     backgroundColor: '#00C896',
@@ -235,7 +255,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     fontWeight: '500',
   },
   filterChipTextActive: {
@@ -244,14 +264,14 @@ const styles = StyleSheet.create({
   },
   resultCount: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 16,
     paddingHorizontal: 20,
   },
   transactionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -266,7 +286,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E8F8F5',
+    backgroundColor: isDark ? '#1A1A1A' : '#E8F8F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -277,17 +297,17 @@ const styles = StyleSheet.create({
   merchantName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 2,
   },
   transactionType: {
     fontSize: 13,
-    color: '#999999',
+    color: isDark ? '#888888' : '#999999',
     marginBottom: 2,
   },
   transactionDate: {
     fontSize: 12,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
   },
   transactionAmount: {
     alignItems: 'flex-end',
@@ -295,7 +315,7 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 4,
   },
   carbonText: {
@@ -307,7 +327,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#E8F8F5',
+    backgroundColor: isDark ? '#1A1A1A' : '#E8F8F5',
     justifyContent: 'center',
     alignItems: 'center',
   },

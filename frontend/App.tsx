@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { CreditsProvider } from './src/contexts/CreditsContext';
 
 import LoadingScreen from './src/screens/LoadingScreen';
 import SplashScreenComponent from './src/screens/SplashScreen';
@@ -93,9 +94,11 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <PaperProvider>
-        <AppNavigator />
-      </PaperProvider>
+      <CreditsProvider>
+        <PaperProvider>
+          <AppNavigator />
+        </PaperProvider>
+      </CreditsProvider>
     </ThemeProvider>
   );
 }

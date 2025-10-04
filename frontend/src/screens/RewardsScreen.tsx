@@ -11,10 +11,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { getCarbonCredits } from '../utils/storage';
 import TicketCutout from '../components/TicketCutout';
 import TicketModal from '../components/TicketModal';
 import { useTheme } from '../contexts/ThemeContext';
+import { useCredits } from '../contexts/CreditsContext';
 import { getThemeColors } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -22,33 +22,23 @@ const { width } = Dimensions.get('window');
 
 const RewardsScreen: React.FC = () => {
   const { theme, isDark } = useTheme();
+  const { credits: currentCredits, deductCredits, refreshCredits } = useCredits();
   const themeColors = getThemeColors(theme);
-  
-  const [currentCredits, setCurrentCredits] = useState(0);
+  const styles = getStyles(isDark);
+
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Load data when screen comes into focus
+  // Refresh credits when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      loadCredits();
+      refreshCredits();
     }, [])
   );
 
   useEffect(() => {
-    loadCredits();
+    refreshCredits();
   }, []);
-
-  const loadCredits = async () => {
-    try {
-      console.log('Loading carbon credits...');
-      const credits = await getCarbonCredits();
-      console.log('Credits:', credits);
-      setCurrentCredits(credits);
-    } catch (error) {
-      console.error('Error loading carbon credits:', error);
-    }
-  };
 
   const giftCards = [
     {
@@ -139,20 +129,33 @@ const RewardsScreen: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleRedeemReward = () => {
+  const handleRedeemReward = async () => {
     if (!selectedReward) return;
 
     setModalVisible(false);
 
+    // Deduct credits using context
+    const success = await deductCredits(selectedReward.credits);
+
+    if (!success) {
+      Alert.alert(
+        'Insufficient Credits',
+        `You need ${selectedReward.credits} credits but only have ${currentCredits}.`
+      );
+      return;
+    }
+
+    const newCredits = currentCredits - selectedReward.credits;
+
     if (selectedReward.type === 'giftcard') {
       Alert.alert(
         'Success!',
-        `Your ${selectedReward.brand} gift card has been redeemed! Check your email for the voucher code.`
+        `Your ${selectedReward.brand} gift card has been redeemed! Check your email for the voucher code.\n\nCredits Used: ${selectedReward.credits}\nRemaining Credits: ${newCredits}`
       );
     } else {
       Alert.alert(
         'Thank You!',
-        'Your contribution to environmental sustainability has been processed!'
+        `Your contribution to environmental sustainability has been processed!\n\nCredits Used: ${selectedReward.credits}\nRemaining Credits: ${newCredits}`
       );
     }
 
@@ -160,7 +163,7 @@ const RewardsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Rewards</Text>
@@ -177,8 +180,8 @@ const RewardsScreen: React.FC = () => {
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Scratch & Reveal</Text>
-          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Cut the ticket to reveal a surprise</Text>
+          <Text style={styles.sectionTitle}>Scratch & Reveal</Text>
+          <Text style={styles.sectionSubtitle}>Cut the ticket to reveal a surprise</Text>
           <View style={styles.ticketContainer}>
             <TicketCutout
               title="Weekly Eco Bonus"
@@ -189,7 +192,7 @@ const RewardsScreen: React.FC = () => {
           </View>
         </View>
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Gift Cards</Text>
+          <Text style={styles.sectionTitle}>Gift Cards</Text>
           <View style={styles.cardsContainer}>
             {giftCards.map((giftCard) => (
               <TouchableOpacity
@@ -198,19 +201,19 @@ const RewardsScreen: React.FC = () => {
                 onPress={() => openRewardModal(giftCard, 'giftcard')}
                 activeOpacity={0.9}
               >
-                <View style={[styles.giftCardContent, { backgroundColor: themeColors.card }]}>
+                <View style={styles.giftCardContent}>
                   <View style={styles.giftCardHeader}>
                     <Text style={styles.giftCardEmoji}>{giftCard.image}</Text>
                     <View style={styles.giftCardInfo}>
-                      <Text style={[styles.giftCardBrand, { color: themeColors.text }]}>{giftCard.brand}</Text>
-                      <Text style={[styles.giftCardValue, { color: themeColors.text }]}>{giftCard.value}</Text>
+                      <Text style={styles.giftCardBrand}>{giftCard.brand}</Text>
+                      <Text style={styles.giftCardValue}>{giftCard.value}</Text>
                     </View>
                   </View>
-                  <Text style={[styles.giftCardDescription, { color: themeColors.textSecondary }]}>{giftCard.description}</Text>
+                  <Text style={styles.giftCardDescription}>{giftCard.description}</Text>
                   <View style={styles.giftCardFooter}>
                     <View style={styles.creditsRequired}>
-                      <MaterialIcons name={"eco" as any} size={16} color={themeColors.primary} />
-                      <Text style={[styles.creditsRequiredText, { color: themeColors.primary }]}>{giftCard.credits}</Text>
+                      <MaterialIcons name={"eco" as any} size={16} color="#00C896" />
+                      <Text style={styles.creditsRequiredText}>{giftCard.credits}</Text>
                     </View>
                     <View
                       style={[
@@ -238,8 +241,8 @@ const RewardsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Environmental Impact</Text>
-          <Text style={[styles.sectionSubtitle, { color: themeColors.textSecondary }]}>Make a direct environmental impact</Text>
+          <Text style={styles.sectionTitle}>Environmental Impact</Text>
+          <Text style={styles.sectionSubtitle}>Make a direct environmental impact</Text>
           <View style={styles.cardsContainer}>
             {ecoRewards.map((reward) => (
               <TouchableOpacity
@@ -270,23 +273,23 @@ const RewardsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>How to Earn More Credits</Text>
+          <Text style={styles.sectionTitle}>How to Earn More Credits</Text>
           <View style={styles.tipsContainer}>
-            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
-              <MaterialIcons name="payment" size={20} color={themeColors.primary} />
-              <Text style={[styles.tipText, { color: themeColors.text }]}>Make payments through the app</Text>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="payment" size={20} color="#00C896" />
+              <Text style={styles.tipText}>Make payments through the app</Text>
             </View>
-            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
-              <MaterialIcons name="qr-code-scanner" size={20} color={themeColors.primary} />
-              <Text style={[styles.tipText, { color: themeColors.text }]}>Scan QR codes at partner stores</Text>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="qr-code-scanner" size={20} color="#00C896" />
+              <Text style={styles.tipText}>Scan QR codes at partner stores</Text>
             </View>
-            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
-              <MaterialIcons name="group" size={20} color={themeColors.primary} />
-              <Text style={[styles.tipText, { color: themeColors.text }]}>Refer friends to earn bonus credits</Text>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="group" size={20} color="#00C896" />
+              <Text style={styles.tipText}>Refer friends to earn bonus credits</Text>
             </View>
-            <View style={[styles.tipItem, { backgroundColor: themeColors.card }]}>
-              <MaterialIcons name="eco" size={20} color={themeColors.primary} />
-              <Text style={[styles.tipText, { color: themeColors.text }]}>Choose eco-friendly merchants</Text>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="eco" size={20} color="#00C896" />
+              <Text style={styles.tipText}>Choose eco-friendly merchants</Text>
             </View>
           </View>
         </View>
@@ -351,10 +354,10 @@ const RewardsScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -407,12 +410,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 15,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 20,
   },
   ticketContainer: {
@@ -422,7 +425,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   giftCardWrapper: {
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     overflow: 'hidden',
     elevation: 2,
@@ -434,12 +437,13 @@ const styles = StyleSheet.create({
   giftCardContent: {
     padding: 16,
     flex: 1,
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
   },
   clickIndicator: {
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: isDark ? 'rgba(45, 45, 45, 0.9)' : 'rgba(255, 255, 255, 0.9)',
     borderRadius: 16,
     padding: 4,
     elevation: 2,
@@ -462,7 +466,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   ecoRewardWrapper: {
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 16,
     overflow: 'hidden',
     elevation: 2,
@@ -497,7 +501,7 @@ const styles = StyleSheet.create({
   },
   giftCardItem: {
     width: (width - 60) / 2,
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -522,7 +526,7 @@ const styles = StyleSheet.create({
   giftCardBrand: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
   },
   giftCardValue: {
     fontSize: 18,
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
   },
   giftCardDescription: {
     fontSize: 13,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 16,
     lineHeight: 18,
     marginTop: 4,
@@ -558,7 +562,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   redeemButtonDisabled: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: isDark ? '#444444' : '#E0E0E0',
   },
   redeemButtonText: {
     fontSize: 13,
@@ -566,12 +570,12 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   redeemButtonTextDisabled: {
-    color: '#999999',
+    color: isDark ? '#888888' : '#999999',
   },
   ecoRewardCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -595,11 +599,11 @@ const styles = StyleSheet.create({
   ecoRewardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
   },
   ecoRewardDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginTop: 2,
   },
   ecoRewardCredits: {
@@ -617,7 +621,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   tipsContainer: {
-    backgroundColor: 'white',
+    backgroundColor: isDark ? '#2D2D2D' : 'white',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -633,12 +637,13 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 14,
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginLeft: 12,
     flex: 1,
   },
   bottomSpacing: {
     height: 40,
+    backgroundColor: isDark ? '#1A1A1A' : '#F8F9FA',
   },
   // Modal styles
   modalGiftCardHeader: {
@@ -656,7 +661,7 @@ const styles = StyleSheet.create({
   modalGiftCardBrand: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
   },
   modalGiftCardValue: {
     fontSize: 20,
@@ -666,7 +671,7 @@ const styles = StyleSheet.create({
   },
   modalGiftCardDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 16,
     lineHeight: 20,
   },
@@ -698,12 +703,12 @@ const styles = StyleSheet.create({
   modalEcoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
+    color: isDark ? '#FFFFFF' : '#333333',
     marginBottom: 4,
   },
   modalEcoDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 12,
     lineHeight: 20,
   },
