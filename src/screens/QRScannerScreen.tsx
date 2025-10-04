@@ -16,7 +16,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
-const QRScannerScreen: React.FC = () => {
+interface QRScannerScreenProps {
+  navigation?: any;
+}
+
+const QRScannerScreen: React.FC<QRScannerScreenProps> = ({ navigation }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
@@ -159,8 +163,17 @@ const QRScannerScreen: React.FC = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Scan QR Code</Text>
-        <Text style={styles.headerSubtitle}>Point camera at QR code to make payment</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation?.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerTitle}>Scan QR Code</Text>
+          <Text style={styles.headerSubtitle}>Point camera at QR code to make payment</Text>
+        </View>
+        <View style={styles.headerPlaceholder} />
       </View>
 
       {/* Camera Container */}
@@ -306,18 +319,36 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerPlaceholder: {
+    width: 40,
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 4,
   },
   scannerContainer: {
     flex: 1,
