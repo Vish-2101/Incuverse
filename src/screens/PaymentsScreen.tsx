@@ -23,22 +23,19 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
 
   const navToUse = parentNavigation || navigation;
 
-  const billCategories = [
+  const paymentCategories = [
     { id: 1, icon: 'flash-on', title: 'Electricity', color: '#FFB020', credits: 10 },
     { id: 2, icon: 'water-drop', title: 'Water', color: '#2196F3', credits: 8 },
     { id: 3, icon: 'phone-android', title: 'Mobile', color: '#9C27B0', credits: 5 },
     { id: 4, icon: 'wifi', title: 'Internet', color: '#FF5722', credits: 7 },
     { id: 5, icon: 'local-gas-station', title: 'Gas', color: '#FF9800', credits: 9 },
     { id: 6, icon: 'credit-card', title: 'Credit Card', color: '#00BCD4', credits: 6 },
-  ];
-
-  const categories = [
-    { id: 1, icon: 'restaurant', title: 'Food & Dining', color: '#FF6B6B' },
-    { id: 2, icon: 'local-gas-station', title: 'Fuel', color: '#4ECDC4' },
-    { id: 3, icon: 'shopping-cart', title: 'Shopping', color: '#45B7D1' },
-    { id: 4, icon: 'movie', title: 'Entertainment', color: '#96CEB4' },
-    { id: 5, icon: 'directions-bus', title: 'Transport', color: '#FECA57' },
-    { id: 6, icon: 'flash-on', title: 'Utilities', color: '#FF9FF3' },
+    { id: 7, icon: 'restaurant', title: 'Food & Dining', color: '#FF6B6B', credits: 5 },
+    { id: 8, icon: 'security', title: 'Insurance', color: '#4ECDC4', credits: 12 },
+    { id: 9, icon: 'shopping-cart', title: 'Shopping', color: '#45B7D1', credits: 8 },
+    { id: 10, icon: 'movie', title: 'Entertainment', color: '#96CEB4', credits: 4 },
+    { id: 11, icon: 'directions-bus', title: 'Transport', color: '#FECA57', credits: 6 },
+    { id: 12, icon: 'home', title: 'Rent', color: '#FF9FF3', credits: 15 },
   ];
 
   const popularBrands = [
@@ -70,42 +67,28 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavig
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Pay Bills</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Payment Categories</Text>
             <TouchableOpacity>
               <Text style={styles.seeAllText}>View All</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.sectionSubtitle}>Pay and earn carbon credits</Text>
+          <Text style={styles.sectionSubtitle}>Pay bills and earn carbon credits</Text>
 
           <View style={styles.billsGrid}>
-            {billCategories.map((bill) => (
+            {paymentCategories.map((category) => (
               <TouchableOpacity
-                key={bill.id}
+                key={category.id}
                 style={styles.billCard}
-                onPress={() => navToUse.navigate('BillPayment', { category: bill.title })}
+                onPress={() => navToUse.navigate('BillPayment', { category: category.title })}
               >
-                <View style={[styles.billIcon, { backgroundColor: bill.color }]}>
-                  <MaterialIcons name={bill.icon as any} size={28} color="white" />
+                <View style={[styles.billIcon, { backgroundColor: category.color }]}>
+                  <MaterialIcons name={category.icon as any} size={28} color="white" />
                 </View>
-                <Text style={styles.billTitle}>{bill.title}</Text>
+                <Text style={styles.billTitle}>{category.title}</Text>
                 <View style={styles.billCreditsSmall}>
                   <MaterialIcons name="eco" size={12} color="#00C896" />
-                  <Text style={styles.billCreditsText}>+{bill.credits}</Text>
+                  <Text style={styles.billCreditsText}>+{category.credits}</Text>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <View style={styles.categoriesGrid}>
-            {categories.map((category) => (
-              <TouchableOpacity key={category.id} style={styles.categoryCard}>
-                <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
-                  <MaterialIcons name={category.icon as any} size={24} color="white" />
-                </View>
-                <Text style={styles.categoryTitle} numberOfLines={2}>{category.title}</Text>
               </TouchableOpacity>
             ))}
           </View>
