@@ -55,7 +55,7 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.greeting}>Good Morning!</Text>
+            
             <Text style={styles.userName}>Welcome to EcoCred</Text>
           </View>
           <TouchableOpacity
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -261,6 +261,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333333',
+    marginBottom: 16,
   },
   walletInsightsTitle: {
     padding: 8,
@@ -282,7 +283,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

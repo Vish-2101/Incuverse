@@ -13,8 +13,24 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const PaymentsScreen: React.FC = () => {
+interface PaymentsScreenProps {
+  navigation: any;
+  parentNavigation?: any;
+}
+
+const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation, parentNavigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
+
+  const navToUse = parentNavigation || navigation;
+
+  const billCategories = [
+    { id: 1, icon: 'flash-on', title: 'Electricity', color: '#FFB020', credits: 10 },
+    { id: 2, icon: 'water-drop', title: 'Water', color: '#2196F3', credits: 8 },
+    { id: 3, icon: 'phone-android', title: 'Mobile', color: '#9C27B0', credits: 5 },
+    { id: 4, icon: 'wifi', title: 'Internet', color: '#FF5722', credits: 7 },
+    { id: 5, icon: 'local-gas-station', title: 'Gas', color: '#FF9800', credits: 9 },
+    { id: 6, icon: 'credit-card', title: 'Credit Card', color: '#00BCD4', credits: 6 },
+  ];
 
   const categories = [
     { id: 1, icon: 'restaurant', title: 'Food & Dining', color: '#FF6B6B' },
@@ -50,6 +66,35 @@ const PaymentsScreen: React.FC = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Pay Bills</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.sectionSubtitle}>Pay and earn carbon credits</Text>
+
+          <View style={styles.billsGrid}>
+            {billCategories.map((bill) => (
+              <TouchableOpacity
+                key={bill.id}
+                style={styles.billCard}
+                onPress={() => navToUse.navigate('BillPayment', { category: bill.title })}
+              >
+                <View style={[styles.billIcon, { backgroundColor: bill.color }]}>
+                  <MaterialIcons name={bill.icon as any} size={28} color="white" />
+                </View>
+                <Text style={styles.billTitle}>{bill.title}</Text>
+                <View style={styles.billCreditsSmall}>
+                  <MaterialIcons name="eco" size={12} color="#00C896" />
+                  <Text style={styles.billCreditsText}>+{bill.credits}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -183,10 +228,63 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 16,
   },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 16,
+    marginTop: 4,
+  },
   seeAllText: {
     fontSize: 14,
     color: '#00C896',
     fontWeight: '600',
+  },
+  billsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  billCard: {
+    width: (width - 60) / 3,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 12,
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  billIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  billTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333333',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  billCreditsSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F8F5',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  billCreditsText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#00C896',
+    marginLeft: 3,
   },
   categoriesGrid: {
     flexDirection: 'row',

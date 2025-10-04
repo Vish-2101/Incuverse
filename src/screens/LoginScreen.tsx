@@ -32,7 +32,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       return;
     }
     Alert.alert('Success', 'Login successful!');
-    navigation.navigate('Dashboard');
+    navigation.navigate('DashboardTabs');
   };
 
   return (

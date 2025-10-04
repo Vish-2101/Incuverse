@@ -47,7 +47,7 @@ const RegistrationScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       [
         {
           text: 'OK',
-          onPress: () => navigation.navigate('Dashboard')
+          onPress: () => navigation.navigate('DashboardTabs')
         }
       ]
     );

@@ -40,7 +40,7 @@ const AuthScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.guestButton}
-          onPress={() => navigation.navigate('Dashboard')}
+          onPress={() => navigation.navigate('DashboardTabs')}
         >
           <Text style={styles.guestButtonText}>Continue as Guest</Text>
         </TouchableOpacity>
