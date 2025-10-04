@@ -16,7 +16,7 @@ import TicketModal from '../components/TicketModal';
 const { width } = Dimensions.get('window');
 
 const RewardsScreen: React.FC = () => {
-  const [currentCredits] = useState(247);
+  const [currentCredits] = useState(1500);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -24,8 +24,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 1,
       brand: 'Amazon',
-      value: '₹500',
-      credits: 50,
+      value: '₹250',
+      credits: 500,
       image: '🛒',
       color: '#FF9500',
       description: 'Shop for millions of products',
@@ -33,8 +33,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 2,
       brand: 'Starbucks',
-      value: '₹300',
-      credits: 30,
+      value: '₹150',
+      credits: 300,
       image: '☕',
       color: '#00704A',
       description: 'Your favorite coffee awaits',
@@ -42,8 +42,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 3,
       brand: 'Flipkart',
-      value: '₹1000',
-      credits: 100,
+      value: '₹100',
+      credits: 2000,
       image: '🛍️',
       color: '#2874F0',
       description: 'India\'s largest online store',
@@ -51,8 +51,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 4,
       brand: 'Zomato',
-      value: '₹400',
-      credits: 40,
+      value: '₹200',
+      credits: 400,
       image: '🍕',
       color: '#E23744',
       description: 'Delicious food delivered',
@@ -60,8 +60,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 5,
       brand: 'BookMyShow',
-      value: '₹250',
-      credits: 25,
+      value: '₹200',
+      credits: 400,
       image: '🎬',
       color: '#C4242B',
       description: 'Movies, events & more',
@@ -69,8 +69,8 @@ const RewardsScreen: React.FC = () => {
     {
       id: 6,
       brand: 'Myntra',
-      value: '₹600',
-      credits: 60,
+      value: '₹300',
+      credits: 600,
       image: '👗',
       color: '#FF3F6C',
       description: 'Fashion at your fingertips',

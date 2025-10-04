@@ -45,9 +45,9 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
   ];
 
   const recentTransactions = [
-    { id: 1, merchant: 'Starbucks', amount: '₹450', date: 'Today', carbon: '+5 credits' },
-    { id: 2, merchant: 'Zomato', amount: '₹680', date: 'Yesterday', carbon: '+8 credits' },
-    { id: 3, merchant: 'Amazon', amount: '₹1,200', date: '2 days ago', carbon: '+12 credits' },
+    { id: 1, merchant: 'Starbucks', amount: '₹450', date: 'Oct 3, 2025', carbon: '+5 credits' },
+    { id: 2, merchant: 'Zomato', amount: '₹680', date: 'Oct 2, 2025', carbon: '+8 credits' },
+    { id: 3, merchant: 'Amazon', amount: '₹1,200', date: 'Oct 1, 2025', carbon: '+12 credits' },
   ];
 
   return (
@@ -70,7 +70,7 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
 
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Available Balance</Text>
-          <Text style={styles.balanceAmount}>₹25,00,480</Text>
+          <Text style={styles.balanceAmount}>₹25,00,500</Text>
           <Text style={styles.carbonCredits}>Carbon Credits: 247</Text>
         </View>
 
@@ -99,13 +99,18 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => parentNavigation?.navigate('TransactionHistory')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
 
           {recentTransactions.map((transaction) => (
-            <View key={transaction.id} style={styles.transactionCard}>
+            <TouchableOpacity
+              key={transaction.id}
+              style={styles.transactionCard}
+              onPress={() => parentNavigation?.navigate('TransactionHistory')}
+              activeOpacity={0.7}
+            >
               <View style={styles.transactionIcon}>
                 <MaterialIcons name="store" size={24} color="#00C896" />
               </View>
@@ -117,7 +122,7 @@ const DashboardScreen: React.FC<{ navigation: any; parentNavigation?: any }> = (
                 <Text style={styles.amountText}>{transaction.amount}</Text>
                 <Text style={styles.carbonText}>{transaction.carbon}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 

@@ -19,7 +19,7 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     name: 'John Doe',
     email: 'john.doe@example.com',
     phone: '+91 98765 43210',
-    joinDate: 'January 2024',
+    joinDate: 'January 2025',
     carbonCredits: 247,
     totalTransactions: 156,
     carbonOffset: '28.4 kg CO₂',

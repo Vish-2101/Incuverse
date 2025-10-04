@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+const CarbonCreditsScreen: React.FC<{ navigation: any; parentNavigation?: any }> = ({ navigation, parentNavigation }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
 
   const carbonStats = {
@@ -31,8 +31,23 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       amount: '₹450',
       credits: 5,
       offset: '0.12 kg CO₂',
-      date: 'Today, 2:30 PM',
+      date: 'Oct 3, 2:30 PM',
+      fullDate: 'Oct 3, 2025',
       icon: 'payment',
+      category: 'Food & Dining',
+      transactionId: 'TXN123456789',
+      status: 'Completed',
+      paymentMethod: 'UPI',
+      carbonImpact: {
+        co2Offset: '0.12 kg',
+        treesEquivalent: '0.006',
+        creditsEarned: 5,
+        breakdown: [
+          { item: 'Sustainable sourcing', value: '60%' },
+          { item: 'Eco-friendly packaging', value: '25%' },
+          { item: 'Carbon neutral delivery', value: '15%' },
+        ],
+      },
     },
     {
       id: 2,
@@ -41,8 +56,23 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       amount: '₹680',
       credits: 8,
       offset: '0.18 kg CO₂',
-      date: 'Yesterday, 7:45 PM',
+      date: 'Oct 2, 7:45 PM',
+      fullDate: 'Oct 2, 2025',
       icon: 'restaurant',
+      category: 'Food & Dining',
+      transactionId: 'TXN987654321',
+      status: 'Completed',
+      paymentMethod: 'Credit Card',
+      carbonImpact: {
+        co2Offset: '0.18 kg',
+        treesEquivalent: '0.009',
+        creditsEarned: 8,
+        breakdown: [
+          { item: 'Local restaurant support', value: '50%' },
+          { item: 'Minimal packaging', value: '30%' },
+          { item: 'Green delivery fleet', value: '20%' },
+        ],
+      },
     },
     {
       id: 3,
@@ -51,8 +81,21 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       amount: '',
       credits: 2,
       offset: '0.05 kg CO₂',
-      date: 'Yesterday, 9:00 AM',
+      date: 'Oct 1, 9:00 AM',
+      fullDate: 'Oct 1, 2025',
       icon: 'event-available',
+      category: 'Bonus',
+      transactionId: 'BONUS123456',
+      status: 'Completed',
+      paymentMethod: '-',
+      carbonImpact: {
+        co2Offset: '0.05 kg',
+        treesEquivalent: '0.0025',
+        creditsEarned: 2,
+        breakdown: [
+          { item: 'Daily engagement bonus', value: '100%' },
+        ],
+      },
     },
     {
       id: 4,
@@ -61,8 +104,23 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       amount: '₹1,200',
       credits: 12,
       offset: '0.25 kg CO₂',
-      date: '2 days ago, 3:15 PM',
+      date: 'Sep 30, 3:15 PM',
+      fullDate: 'Sep 30, 2025',
       icon: 'shopping-cart',
+      category: 'Shopping',
+      transactionId: 'TXN456789123',
+      status: 'Completed',
+      paymentMethod: 'Debit Card',
+      carbonImpact: {
+        co2Offset: '0.25 kg',
+        treesEquivalent: '0.0125',
+        creditsEarned: 12,
+        breakdown: [
+          { item: 'Eco-certified products', value: '55%' },
+          { item: 'Recycled packaging', value: '30%' },
+          { item: 'Carbon offset shipping', value: '15%' },
+        ],
+      },
     },
   ];
 
@@ -206,7 +264,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Achievement Badges</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('BadgeDetails')}>
+            <TouchableOpacity onPress={() => parentNavigation?.navigate('BadgeDetails')}>
               <Text style={styles.seeAllText}>Know More</Text>
             </TouchableOpacity>
           </View>
@@ -219,7 +277,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                   styles.badgeCard,
                   !badge.earned && styles.badgeCardLocked,
                 ]}
-                onPress={() => navigation.navigate('BadgeDetails', { selectedBadge: badge })}
+                onPress={() => parentNavigation?.navigate('BadgeDetails', { selectedBadge: badge })}
                 activeOpacity={0.7}
               >
                 <View style={styles.badgeHeader}>
@@ -274,7 +332,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.viewAllBadgesButton}
-            onPress={() => navigation.navigate('BadgeDetails')}
+            onPress={() => parentNavigation?.navigate('BadgeDetails')}
           >
             <Text style={styles.viewAllBadgesText}>View All Badges</Text>
             <MaterialIcons name="arrow-forward" size={20} color="#00C896" />
@@ -284,13 +342,18 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Activities</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => parentNavigation?.navigate('ActivityDetails')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
 
           {recentActivities.map((activity) => (
-            <View key={activity.id} style={styles.activityCard}>
+            <TouchableOpacity
+              key={activity.id}
+              style={styles.activityCard}
+              onPress={() => parentNavigation?.navigate('ActivityDetails', { activity })}
+              activeOpacity={0.7}
+            >
               <View style={styles.activityIcon}>
                 <MaterialIcons name={activity.icon as any} size={20} color="#00C896" />
               </View>
@@ -308,7 +371,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 </View>
                 <Text style={styles.offsetText}>{activity.offset}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -317,7 +380,7 @@ const CarbonCreditsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.educationCard}
-            onPress={() => navigation.navigate('EnvironmentalEducation')}
+            onPress={() => parentNavigation?.navigate('EnvironmentalEducation')}
             activeOpacity={0.8}
           >
             <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.educationGradient}>
@@ -644,9 +707,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    marginHorizontal: 4,
   },
   educationGradient: {
-    padding: 24,
+    padding: 28,
     alignItems: 'center',
   },
   educationTitle: {

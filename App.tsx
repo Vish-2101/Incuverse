@@ -17,6 +17,9 @@ import BadgeDetailsScreen from './src/screens/BadgeDetailsScreen';
 import EnvironmentalEducationScreen from './src/screens/EnvironmentalEducationScreen';
 import BillPaymentScreen from './src/screens/BillPaymentScreen';
 import PaymentConfirmationScreen from './src/screens/PaymentConfirmationScreen';
+import ActivityDetailsScreen from './src/screens/ActivityDetailsScreen';
+import TransactionHistoryScreen from './src/screens/TransactionHistoryScreen';
+import TransactionDetailsScreen from './src/screens/TransactionDetailsScreen';
 import DashboardTabs from './src/navigation/DashboardTabs';
 import type { RootStackParamList } from './src/types/navigation';
 
@@ -68,6 +71,9 @@ export default function App() {
           <Stack.Screen name="EnvironmentalEducation" component={EnvironmentalEducationScreen} />
           <Stack.Screen name="BillPayment" component={BillPaymentScreen} />
           <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen} />
+          <Stack.Screen name="ActivityDetails" component={ActivityDetailsScreen} />
+          <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
+          <Stack.Screen name="TransactionDetails" component={TransactionDetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
