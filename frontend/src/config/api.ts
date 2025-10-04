@@ -5,7 +5,7 @@ const API_CONFIG = {
   // For iOS devices (simulator and physical devices), use localhost
   ios: 'http://localhost:3000/api',
   // For Android devices, use the current IP address
-  android: 'http://192.168.77.68:3000/api',
+  android: 'http://10.0.2.129:3000/api',
 };
 
 // Get the appropriate API base URL based on the platform

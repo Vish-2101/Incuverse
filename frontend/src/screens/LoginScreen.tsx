@@ -17,10 +17,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { getThemeColors } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
 import { setUserId } from '../utils/storage';
-
-// --- IMPORTANT ---
-// Replace with your computer's local IP address.
-const API_BASE_URL = 'http://localhost:3000/api/auth';
+import { getApiBaseUrl } from '../config/api';
 
 const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
@@ -40,7 +37,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/login/send-otp`, {
+      const response = await fetch(`${getApiBaseUrl()}/auth/login/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +70,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/login/verify-otp`, {
+      const response = await fetch(`${getApiBaseUrl()}/auth/login/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

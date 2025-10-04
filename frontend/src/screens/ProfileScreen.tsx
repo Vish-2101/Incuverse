@@ -15,10 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../contexts/ThemeContext';
 import { getThemeColors } from '../utils/theme';
 import ThemeToggle from '../components/ThemeToggle';
-
-// --- IMPORTANT ---
-// Replace with your computer's local IP address.
-const API_BASE_URL = 'http://localhost:3000/api/users';
+import { getUsersApiUrl } from '../config/api';
 
 interface User {
   fullName: string;
@@ -45,7 +42,7 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/profile`, {
+        const response = await fetch(`${getUsersApiUrl()}/profile`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
