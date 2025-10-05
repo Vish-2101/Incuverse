@@ -8,8 +8,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
 
 const ActivityDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ navigation, route }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
   const activity = route?.params?.activity;
 
   const allActivities = [
@@ -214,7 +218,7 @@ const ActivityDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ nav
   const selectedActivity = activity || allActivities[0];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -243,118 +247,119 @@ const ActivityDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ nav
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Transaction Details</Text>
-          <View style={styles.detailsCard}>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Transaction Details</Text>
+          <View style={[styles.detailsCard, { backgroundColor: themeColors.card }]}>
             <View style={styles.merchantHeader}>
-              <View style={styles.merchantIconContainer}>
-                <MaterialIcons name={selectedActivity.icon as any} size={32} color="#00C896" />
+              <View style={[styles.merchantIconContainer, { backgroundColor: themeColors.primaryLight }]}>
+                <MaterialIcons name={selectedActivity.icon as any} size={32} color={themeColors.primary} />
               </View>
               <View style={styles.merchantInfo}>
-                <Text style={styles.merchantName}>{selectedActivity.merchant}</Text>
-                <Text style={styles.merchantCategory}>{selectedActivity.category}</Text>
+                <Text style={[styles.merchantName, { color: themeColors.text }]}>{selectedActivity.merchant}</Text>
+                <Text style={[styles.merchantCategory, { color: themeColors.textSecondary }]}>{selectedActivity.category}</Text>
               </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0' }]} />
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Transaction ID</Text>
-              <Text style={styles.detailValue}>{selectedActivity.transactionId}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Transaction ID</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>{selectedActivity.transactionId}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Date & Time</Text>
-              <Text style={styles.detailValue}>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Date & Time</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>
                 {selectedActivity.fullDate || selectedActivity.date}
                 {selectedActivity.date && !selectedActivity.date.includes(selectedActivity.fullDate) && `, ${selectedActivity.date.split(/,?\s+/).slice(-2).join(' ')}`}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Status</Text>
-              <View style={styles.statusBadge}>
-                <MaterialIcons name="check-circle" size={16} color="#00C896" />
-                <Text style={styles.statusText}>{selectedActivity.status}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Status</Text>
+              <View style={[styles.statusBadge, { backgroundColor: themeColors.primaryLight }]}>
+                <MaterialIcons name="check-circle" size={16} color={themeColors.primary} />
+                <Text style={[styles.statusText, { color: themeColors.primary }]}>{selectedActivity.status}</Text>
               </View>
             </View>
 
             {selectedActivity.amount && (
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Amount</Text>
-                <Text style={styles.detailValueBold}>{selectedActivity.amount}</Text>
+                <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Amount</Text>
+                <Text style={[styles.detailValueBold, { color: themeColors.text }]}>{selectedActivity.amount}</Text>
               </View>
             )}
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Payment Method</Text>
-              <Text style={styles.detailValue}>{selectedActivity.paymentMethod}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Payment Method</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>{selectedActivity.paymentMethod}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Carbon Impact</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Carbon Impact</Text>
           <View style={styles.impactCard}>
-            <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.impactGradient}>
+            <LinearGradient colors={isDark ? ['#1A3A2E', '#0F2A1F'] : ['#E8F8F5', '#D1F2EB']} style={styles.impactGradient}>
               <View style={styles.impactStats}>
                 <View style={styles.impactStatItem}>
                   <MaterialIcons name="eco" size={28} color="#4CAF50" />
-                  <Text style={styles.impactStatNumber}>{selectedActivity.carbonImpact?.co2Offset || '0 kg'}</Text>
-                  <Text style={styles.impactStatLabel}>CO₂ Offset</Text>
+                  <Text style={[styles.impactStatNumber, { color: themeColors.text }]}>{selectedActivity.carbonImpact?.co2Offset || '0 kg'}</Text>
+                  <Text style={[styles.impactStatLabel, { color: themeColors.textSecondary }]}>CO₂ Offset</Text>
                 </View>
                 <View style={styles.impactStatItem}>
                   <MaterialIcons name="park" size={28} color="#8BC34A" />
-                  <Text style={styles.impactStatNumber}>{selectedActivity.carbonImpact?.treesEquivalent || '0'}</Text>
-                  <Text style={styles.impactStatLabel}>Trees</Text>
+                  <Text style={[styles.impactStatNumber, { color: themeColors.text }]}>{selectedActivity.carbonImpact?.treesEquivalent || '0'}</Text>
+                  <Text style={[styles.impactStatLabel, { color: themeColors.textSecondary }]}>Trees</Text>
                 </View>
                 <View style={styles.impactStatItem}>
                   <MaterialIcons name="stars" size={28} color="#FFB300" />
-                  <Text style={styles.impactStatNumber}>{selectedActivity.carbonImpact?.creditsEarned || 0}</Text>
-                  <Text style={styles.impactStatLabel}>Credits</Text>
+                  <Text style={[styles.impactStatNumber, { color: themeColors.text }]}>{selectedActivity.carbonImpact?.creditsEarned || 0}</Text>
+                  <Text style={[styles.impactStatLabel, { color: themeColors.textSecondary }]}>Credits</Text>
                 </View>
               </View>
             </LinearGradient>
           </View>
 
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>Carbon Credit Breakdown</Text>
+          <View style={[styles.breakdownCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.breakdownTitle, { color: themeColors.text }]}>Carbon Credit Breakdown</Text>
             {selectedActivity.carbonImpact?.breakdown?.map((item: any, index: number) => (
               <View key={index} style={styles.breakdownItem}>
                 <View style={styles.breakdownInfo}>
-                  <MaterialIcons name="check-circle" size={16} color="#00C896" />
-                  <Text style={styles.breakdownLabel}>{item.item}</Text>
+                  <MaterialIcons name="check-circle" size={16} color={themeColors.primary} />
+                  <Text style={[styles.breakdownLabel, { color: themeColors.textSecondary }]}>{item.item}</Text>
                 </View>
-                <Text style={styles.breakdownValue}>{item.value}</Text>
+                <Text style={[styles.breakdownValue, { color: themeColors.primary }]}>{item.value}</Text>
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Recent Activities</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>All Recent Activities</Text>
           {allActivities.map((act) => (
             <TouchableOpacity
               key={act.id}
               style={[
                 styles.activityCard,
-                act.id === selectedActivity.id && styles.activityCardActive,
+                { backgroundColor: themeColors.card },
+                act.id === selectedActivity.id && { borderWidth: 2, borderColor: themeColors.primary },
               ]}
               onPress={() => navigation.replace('ActivityDetails', { activity: act })}
             >
-              <View style={styles.activityIcon}>
-                <MaterialIcons name={act.icon as any} size={20} color="#00C896" />
+              <View style={[styles.activityIcon, { backgroundColor: themeColors.primaryLight }]}>
+                <MaterialIcons name={act.icon as any} size={20} color={themeColors.primary} />
               </View>
               <View style={styles.activityDetails}>
-                <Text style={styles.activityMerchant}>{act.merchant}</Text>
-                <Text style={styles.activityDate}>{act.date}</Text>
-                {act.amount && <Text style={styles.activityAmount}>{act.amount}</Text>}
+                <Text style={[styles.activityMerchant, { color: themeColors.text }]}>{act.merchant}</Text>
+                <Text style={[styles.activityDate, { color: themeColors.textSecondary }]}>{act.date}</Text>
+                {act.amount && <Text style={[styles.activityAmount, { color: themeColors.textTertiary }]}>{act.amount}</Text>}
               </View>
               <View style={styles.activityImpact}>
-                <View style={styles.creditsEarned}>
-                  <MaterialIcons name="eco" size={16} color="#00C896" />
-                  <Text style={styles.creditsText}>+{act.credits}</Text>
+                <View style={[styles.creditsEarned, { backgroundColor: themeColors.primaryLight }]}>
+                  <MaterialIcons name="eco" size={16} color={themeColors.primary} />
+                  <Text style={[styles.creditsText, { color: themeColors.primary }]}>+{act.credits}</Text>
                 </View>
-                <Text style={styles.offsetText}>{act.offset}</Text>
+                <Text style={[styles.offsetText, { color: themeColors.textSecondary }]}>{act.offset}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -369,7 +374,6 @@ const ActivityDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ nav
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -429,11 +433,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
     marginBottom: 16,
   },
   detailsCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -451,7 +453,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E8F8F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -462,16 +463,13 @@ const styles = StyleSheet.create({
   merchantName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
   },
   merchantCategory: {
     fontSize: 14,
-    color: '#666666',
     marginTop: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
     marginBottom: 16,
   },
   detailRow: {
@@ -482,22 +480,18 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: '#666666',
   },
   detailValue: {
     fontSize: 14,
-    color: '#333333',
     fontWeight: '500',
   },
   detailValueBold: {
     fontSize: 16,
-    color: '#1A1A1A',
     fontWeight: 'bold',
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F8F5',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -505,7 +499,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    color: '#00C896',
     fontWeight: '600',
   },
   impactCard: {
@@ -526,16 +519,13 @@ const styles = StyleSheet.create({
   impactStatNumber: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
     marginTop: 8,
   },
   impactStatLabel: {
     fontSize: 11,
-    color: '#666666',
     marginTop: 4,
   },
   breakdownCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -547,7 +537,6 @@ const styles = StyleSheet.create({
   breakdownTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
     marginBottom: 16,
   },
   breakdownItem: {
@@ -564,17 +553,14 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: 14,
-    color: '#666666',
   },
   breakdownValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#00C896',
   },
   activityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -586,13 +572,11 @@ const styles = StyleSheet.create({
   },
   activityCardActive: {
     borderWidth: 2,
-    borderColor: '#00C896',
   },
   activityIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E8F8F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -603,16 +587,13 @@ const styles = StyleSheet.create({
   activityMerchant: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
   },
   activityDate: {
     fontSize: 12,
-    color: '#666666',
     marginTop: 2,
   },
   activityAmount: {
     fontSize: 14,
-    color: '#999999',
     marginTop: 2,
   },
   activityImpact: {
@@ -621,7 +602,6 @@ const styles = StyleSheet.create({
   creditsEarned: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F8F5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -629,12 +609,10 @@ const styles = StyleSheet.create({
   creditsText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#00C896',
     marginLeft: 4,
   },
   offsetText: {
     fontSize: 10,
-    color: '#666666',
     marginTop: 4,
   },
   bottomSpacing: {
