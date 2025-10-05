@@ -37,10 +37,18 @@ const createOrUpdateProfile = async (req, res) => {
     // Remove userId from profileData to avoid conflicts
     delete profileData.userId;
 
+    // Clean profileData to handle null/undefined values
+    const cleanedProfileData = {};
+    Object.keys(profileData).forEach(key => {
+      if (profileData[key] !== null && profileData[key] !== undefined) {
+        cleanedProfileData[key] = profileData[key];
+      }
+    });
+
     const profile = await UserProfile.findOneAndUpdate(
       { userId },
       { 
-        ...profileData,
+        ...cleanedProfileData,
         lastActive: new Date()
       },
       { 

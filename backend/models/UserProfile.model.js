@@ -13,13 +13,11 @@ const userProfileSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
-    unique: true
+    required: false
   },
   phoneNumber: {
     type: String,
-    required: true,
-    unique: true
+    required: false
   },
   dateOfBirth: {
     type: String,
@@ -58,7 +56,7 @@ const userProfileSchema = new mongoose.Schema({
 
 // Index for efficient queries
 userProfileSchema.index({ userId: 1 });
-userProfileSchema.index({ email: 1 });
-userProfileSchema.index({ phoneNumber: 1 });
+userProfileSchema.index({ email: 1 }, { sparse: true });
+userProfileSchema.index({ phoneNumber: 1 }, { sparse: true });
 
 module.exports = mongoose.model('UserProfile', userProfileSchema);

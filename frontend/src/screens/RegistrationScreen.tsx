@@ -81,7 +81,7 @@ const RegistrationScreen: React.FC<{ navigation: any, route: any }> = ({ navigat
           [{
             text: 'OK',
             // Updated navigation to target "DashboardScreen" as requested
-            onPress: () => navigation.navigate('Dashboard')
+            onPress: () => navigation.navigate('Login')
           }]
         );
       } else {
