@@ -8,8 +8,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../utils/theme';
 
 const TransactionDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ navigation, route }) => {
+  const { theme, isDark } = useTheme();
+  const themeColors = getThemeColors(theme);
   const transaction = route?.params?.transaction || {
     merchant: 'Unknown',
     amount: '₹0',
@@ -25,7 +29,7 @@ const TransactionDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ 
   const transactionId = `TXN${Math.random().toString().slice(2, 11)}`;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <LinearGradient colors={['#00C896', '#00A876']} style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -50,67 +54,67 @@ const TransactionDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ 
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <View style={styles.detailsCard}>
+          <View style={[styles.detailsCard, { backgroundColor: themeColors.card }]}>
             <View style={styles.merchantHeader}>
-              <View style={styles.merchantIconContainer}>
-                <MaterialIcons name={transaction.icon as any} size={32} color="#00C896" />
+              <View style={[styles.merchantIconContainer, { backgroundColor: themeColors.primaryLight }]}>
+                <MaterialIcons name={transaction.icon as any} size={32} color={themeColors.primary} />
               </View>
               <View style={styles.merchantInfo}>
-                <Text style={styles.merchantName}>{transaction.merchant}</Text>
-                <Text style={styles.merchantCategory}>{transaction.type}</Text>
+                <Text style={[styles.merchantName, { color: themeColors.text }]}>{transaction.merchant}</Text>
+                <Text style={[styles.merchantCategory, { color: themeColors.textSecondary }]}>{transaction.type}</Text>
               </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0' }]} />
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Transaction ID</Text>
-              <Text style={styles.detailValue}>{transactionId}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Transaction ID</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>{transactionId}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Date & Time</Text>
-              <Text style={styles.detailValue}>{transaction.fullDate}, {transaction.time}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Date & Time</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>{transaction.fullDate}, {transaction.time}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Payment Method</Text>
-              <Text style={styles.detailValue}>UPI</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Payment Method</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>UPI</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Category</Text>
-              <Text style={styles.detailValue}>{transaction.type}</Text>
+              <Text style={[styles.detailLabel, { color: themeColors.textSecondary }]}>Category</Text>
+              <Text style={[styles.detailValue, { color: themeColors.text }]}>{transaction.type}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Carbon Credits Earned</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Carbon Credits Earned</Text>
           <View style={styles.creditsCard}>
-            <LinearGradient colors={['#E8F8F5', '#D1F2EB']} style={styles.creditsGradient}>
-              <MaterialIcons name="eco" size={48} color="#00C896" />
-              <Text style={styles.creditsValue}>{transaction.carbon}</Text>
-              <Text style={styles.creditsSubtext}>Great job! You're contributing to a greener planet</Text>
+            <LinearGradient colors={isDark ? ['#1A3A2E', '#0F2A1F'] : ['#E8F8F5', '#D1F2EB']} style={styles.creditsGradient}>
+              <MaterialIcons name="eco" size={48} color={themeColors.primary} />
+              <Text style={[styles.creditsValue, { color: themeColors.primary }]}>{transaction.carbon}</Text>
+              <Text style={[styles.creditsSubtext, { color: themeColors.textSecondary }]}>Great job! You're contributing to a greener planet</Text>
             </LinearGradient>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Environmental Impact</Text>
-          <View style={styles.impactCard}>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Environmental Impact</Text>
+          <View style={[styles.impactCard, { backgroundColor: themeColors.card }]}>
             <View style={styles.impactRow}>
               <View style={styles.impactItem}>
                 <MaterialIcons name="park" size={24} color="#4CAF50" />
-                <Text style={styles.impactLabel}>CO₂ Offset</Text>
-                <Text style={styles.impactValue}>
+                <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>CO₂ Offset</Text>
+                <Text style={[styles.impactValue, { color: themeColors.text }]}>
                   {transaction.carbonImpact?.co2Offset || `${((transaction.credits || 0) * 0.02).toFixed(2)} kg`}
                 </Text>
               </View>
               <View style={styles.impactItem}>
                 <MaterialIcons name="nature" size={24} color="#8BC34A" />
-                <Text style={styles.impactLabel}>Trees Equivalent</Text>
-                <Text style={styles.impactValue}>
+                <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Trees Equivalent</Text>
+                <Text style={[styles.impactValue, { color: themeColors.text }]}>
                   {transaction.carbonImpact?.treesEquivalent || ((transaction.credits || 0) * 0.001).toFixed(3)}
                 </Text>
               </View>
@@ -127,7 +131,6 @@ const TransactionDetailsScreen: React.FC<{ navigation: any; route?: any }> = ({ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   header: {
     paddingTop: 50,
@@ -197,11 +200,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
     marginBottom: 16,
   },
   detailsCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -219,7 +220,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E8F8F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -230,16 +230,13 @@ const styles = StyleSheet.create({
   merchantName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
   },
   merchantCategory: {
     fontSize: 14,
-    color: '#666666',
     marginTop: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
     marginBottom: 16,
   },
   detailRow: {
@@ -250,11 +247,9 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: '#666666',
   },
   detailValue: {
     fontSize: 14,
-    color: '#333333',
     fontWeight: '500',
   },
   creditsCard: {
@@ -273,17 +268,14 @@ const styles = StyleSheet.create({
   creditsValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#00C896',
     marginTop: 16,
     marginBottom: 8,
   },
   creditsSubtext: {
     fontSize: 14,
-    color: '#666666',
     textAlign: 'center',
   },
   impactCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -302,14 +294,12 @@ const styles = StyleSheet.create({
   },
   impactLabel: {
     fontSize: 12,
-    color: '#666666',
     marginTop: 8,
     textAlign: 'center',
   },
   impactValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
     marginTop: 4,
   },
   bottomSpacing: {
